@@ -2,6 +2,8 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
 import MapView from "react-native-maps";
 import * as firebase from "firebase";
 import "firebase/firestore";
@@ -28,6 +30,7 @@ const db = firebase.firestore();
 const testRef = db.collection("test").doc("1");
 
 export default class App extends React.Component {
+  _isMounted = false;
   constructor(props) {
     super(props);
     this.state = {
@@ -39,6 +42,7 @@ export default class App extends React.Component {
     this.queryBreezy = this.queryBreezy.bind(this);
   }
   componentDidMount() {
+    this._isMounted = true;
     this.getData();
   }
 
@@ -49,9 +53,11 @@ export default class App extends React.Component {
       )
       .then((results) => {
         console.log("this starts here!", results.data.data.fires[0]);
-        this.setState({
-          fires: results.data.data.fires,
-        });
+        if (this._isMounted) {
+          this.setState({
+            fires: results.data.data.fires,
+          });
+        }
       })
       .catch((err) => {
         console.error(err);
@@ -80,6 +86,10 @@ export default class App extends React.Component {
       .catch(function (error) {
         console.log("Error getting document:", error);
       });
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   render() {
@@ -115,9 +125,5 @@ const styles = StyleSheet.create({
     backgroundColor: "orange",
     alignItems: "center",
     justifyContent: "center",
-  },
-
-  firstBox: {
-    backgroundColor: "blue",
   },
 });
