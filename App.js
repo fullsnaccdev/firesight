@@ -6,6 +6,7 @@ import MapView from "react-native-maps";
 import * as firebase from "firebase";
 import "firebase/firestore";
 import axios from "axios";
+import breezy_key from "./breezy.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA7meYAgCE0tMJesb_fFvwNqM0jnnkuE6M",
@@ -32,11 +33,29 @@ export default class App extends React.Component {
     this.state = {
       lat: "",
       lon: "",
+      fires: [],
     };
     this.getData = this.getData.bind(this);
+    this.queryBreezy = this.queryBreezy.bind(this);
   }
   componentDidMount() {
     this.getData();
+  }
+
+  queryBreezy() {
+    axios
+      .get(
+        `https://api.breezometer.com/fires/v1/current-conditions?lat=${this.state.lat}&lon=${this.state.lon}&key=${breezy_key}&radius=100`
+      )
+      .then((results) => {
+        console.log("this starts here!", results.data.data.fires[0]);
+        this.setState({
+          fires: results.data.data.fires,
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   }
 
   getData() {
@@ -55,7 +74,7 @@ export default class App extends React.Component {
             lat: Number(lat),
             lon: Number(lon),
           },
-          console.log(lat, lon)
+          () => this.queryBreezy()
         );
       })
       .catch(function (error) {
@@ -64,7 +83,6 @@ export default class App extends React.Component {
   }
 
   render() {
-    console.log("state from the inside!", this.state);
     if (this.state.lat === "") {
       return (
         <View>
