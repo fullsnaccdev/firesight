@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, View, Button } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import MapView from "react-native-maps";
+import MapView, { Marker } from "react-native-maps";
 import * as firebase from "firebase";
 import "firebase/firestore";
 import axios from "axios";
@@ -52,7 +52,6 @@ export default class Map extends React.Component {
         `https://api.breezometer.com/fires/v1/current-conditions?lat=${this.state.lat}&lon=${this.state.lon}&key=${breezy_key}&radius=100`
       )
       .then((results) => {
-        console.log("this starts here!", results.data.data.fires[0]);
         if (this._isMounted) {
           this.setState({
             fires: results.data.data.fires,
@@ -113,7 +112,26 @@ export default class Map extends React.Component {
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421,
           }}
-        />
+        >
+          {this.state.fires.map((fire, index) => (
+            <Marker
+              key={index}
+              coordinate={{
+                latitude: fire.position.lat,
+                longitude: fire.position.lon,
+              }}
+              image={require("./assets/clip1.png")}
+              title={fire.details.fire_name}
+              description={fire.details.fire_behavior}
+            />
+          ))}
+
+          {/* <Marker
+            coordinate={{ latitude: 37.78825, longitude: -122.4324 }}
+            title={"Title"}
+            description={"description"}
+          /> */}
+        </MapView>
       );
     }
   }
