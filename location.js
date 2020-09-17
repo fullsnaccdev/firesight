@@ -57,3 +57,5 @@
   ],
     "status" : "OK"
 }
+
+results[0].geometry.location

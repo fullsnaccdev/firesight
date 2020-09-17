@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, View, Button, TextInput, TouchableOpacity } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import MapView, { Marker } from "react-native-maps";
+import MapView, { Marker, Callout } from "react-native-maps";
 import { Constants } from "expo";
 import * as Location from "expo-location";
 import * as Permissions from "expo-permissions";
@@ -88,7 +88,7 @@ export default class Map extends React.Component {
   queryBreezy() {
     axios
       .get(
-        `https://api.breezometer.com/fires/v1/current-conditions?lat=${this.state.lat}&lon=${this.state.lon}&key=${breezy_key}&radius=100`
+        `https://api.breezometer.com/fires/v1/current-conditions?lat=${this.state.lat}&lon=${this.state.lon}&key=${breezy_key}&units=imperial&radius=62`
       )
       .then((results) => {
         if (this._isMounted) {
@@ -164,6 +164,10 @@ export default class Map extends React.Component {
     });
   }
 
+  calloutPress() {
+    console.log("hello!");
+  }
+
   render() {
     if (this.state.lat === "") {
       return (
@@ -215,18 +219,38 @@ export default class Map extends React.Component {
                 longitude: fire.position.lon,
               }}
               image={require("./assets/clip1.png")}
-              title={fire.details !== null ? fire.details.fire_name : ""}
-              description={
-                fire.details !== null ? fire.details.fire_behavior : ""
-              }
-            />
+              onCalloutPress={() => this.calloutPress()}
+            >
+              <Callout>
+                <View>
+                  <Text style={styles.calloutTitle}>
+                    {fire.details !== null && fire.details.fire_name !== null ? fire.details.fire_name : null}
+                  </Text>
+                  <Text style={styles.calloutDescription}>
+                    {fire.details !== null && fire.details.percent_contained !== null ? `${fire.details.percent_contained}% contained` : null}
+                  </Text>
+                  <Text style={styles.calloutDescription}>
+                    {fire.details !== null && fire.details.size.value !== null ? `${fire.details.size.value} acres` : null}
+                  </Text>
+                </View>
+              </Callout>
+            </Marker>
           ))}
 
           <Marker
             coordinate={{ latitude: this.state.lat, longitude: this.state.lon }}
-            title={"Air Quality"}
-            description={`${this.state.airQuality.category} : ${this.state.airQuality.aqi}`}
-          />
+            // title={"Air Quality"}
+            onCalloutPress={() => this.calloutPress()}
+          // description={`${this.state.airQuality.category} : ${this.state.airQuality.aqi}`}
+          >
+            <Callout>
+              <View>
+                <Text style={styles.calloutTitle}>{"Air Quality"}</Text>
+                <Text style={styles.calloutDescription}>{`AQI: ${this.state.airQuality.aqi}\n${this.state.airQuality.category}`}</Text>
+              </View>
+            </Callout>
+          </Marker>
+
         </MapView>
       );
     }
@@ -247,9 +271,10 @@ const styles = StyleSheet.create({
     height: 40,
     borderColor: "#7a42f4",
     borderWidth: 1,
+    padding: 10
   },
   submitButton: {
-    backgroundColor: "#7a42f4",
+    backgroundColor: "orange",
     padding: 10,
     margin: 15,
     height: 40,
@@ -257,4 +282,12 @@ const styles = StyleSheet.create({
   submitButtonText: {
     color: "white",
   },
+  calloutTitle: {
+    fontSize: 17,
+    marginBottom: 5,
+    fontWeight: "bold"
+  },
+  calloutDescription: {
+    fontSize: 14
+  }
 });
