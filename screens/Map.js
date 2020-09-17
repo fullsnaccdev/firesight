@@ -9,10 +9,10 @@ import * as Location from "expo-location";
 import * as Permissions from "expo-permissions";
 import * as firebase from "firebase";
 import "firebase/firestore";
-import firekey from '../firekey.js'
+import firekey from '../firekey2.js'
 import axios from "axios";
 import breezy_key from "../breezy.js";
-import google_key from "../google_key.js";
+import google_key from "../google_key2.js";
 
 const Stack = createStackNavigator();
 
