@@ -1,13 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  Button,
-  TextInput,
-  TouchableOpacity,
-} from "react-native";
+import { StyleSheet, Text, View, Button, TextInput, TouchableOpacity } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import MapView, { Marker } from "react-native-maps";
@@ -18,6 +11,7 @@ import * as firebase from "firebase";
 import "firebase/firestore";
 import axios from "axios";
 import breezy_key from "./breezy.js";
+import google_key from "./google_key.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA7meYAgCE0tMJesb_fFvwNqM0jnnkuE6M",
@@ -53,6 +47,7 @@ export default class Map extends React.Component {
     };
     // this.getData = this.getData.bind(this);
     this.queryBreezy = this.queryBreezy.bind(this);
+    this.getCityCoords = this.getCityCoords.bind(this);
   }
   componentDidMount() {
     this._isMounted = true;
@@ -145,13 +140,27 @@ export default class Map extends React.Component {
   //     });
   // }
 
+  getCityCoords() {
+    axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${this.state.location}&key=${google_key}`)
+      .then((results) => {
+        console.log('location', this.state.location);
+        console.log('results: ', results.results)
+        this.setState({
+          lat: results.data.results[0].geometry.location.lat,
+          lon: results.data.results[0].geometry.location.lng
+        })
+      })
+      .then(() => this.queryBreezy())
+      .catch((error) => console.error(error))
+  }
+
   componentWillUnmount() {
     this._isMounted = false;
   }
 
-  changeHandler(e) {
+  changeHandler(text) {
     this.setState({
-      location: e.target.value,
+      location: text,
     });
   }
 
@@ -161,15 +170,15 @@ export default class Map extends React.Component {
         <View style={styles.container}>
           <TextInput
             style={{ height: 40, borderColor: "gray", borderWidth: 1 }}
-            onChangeText={(e) => {
-              this.changeHandler;
+            onChangeText={(text) => {
+              this.changeHandler(text);
             }}
             value={this.state.location}
             placeholder="Please Input A City"
           ></TextInput>
           <TouchableOpacity
             style={styles.submitButton}
-            // onPress={() => this.login(this.state.email, this.state.password)}
+            onPress={() => { this.getCityCoords() }}
           >
             <Text style={styles.submitButtonText}> Submit </Text>
           </TouchableOpacity>
