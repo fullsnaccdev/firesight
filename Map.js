@@ -4,6 +4,9 @@ import { StyleSheet, Text, View, Button } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import MapView, { Marker } from "react-native-maps";
+import { Constants } from "expo";
+import * as Location from "expo-location";
+import * as Permissions from "expo-permissions";
 import * as firebase from "firebase";
 import "firebase/firestore";
 import axios from "axios";
@@ -37,14 +40,48 @@ export default class Map extends React.Component {
       lat: "",
       lon: "",
       fires: [],
+      location: null,
+      errorMessage: null,
     };
-    this.getData = this.getData.bind(this);
+    // this.getData = this.getData.bind(this);
     this.queryBreezy = this.queryBreezy.bind(this);
   }
   componentDidMount() {
     this._isMounted = true;
-    this.getData();
+    this.findCurrentLocation();
+    // this.getData();
   }
+
+  findCurrentLocation() {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+        this.setState(
+          {
+            lat: latitude,
+            lon: longitude,
+          },
+          () => this.queryBreezy()
+        );
+      },
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
+    );
+  }
+
+  findCurrentLocationAsync = async () => {
+    let { status } = await Permissions.askAsync(Permissions.LOCATION);
+
+    if (status !== "granted") {
+      this.setState({
+        errorMessage: "Permission to access location was denied",
+      });
+      console.log("inside findcurrentasync", this.state);
+    }
+
+    let location = await Location.getCurrentPositionAsync();
+    this.setState({ location });
+  };
 
   queryBreezy() {
     axios
@@ -63,29 +100,29 @@ export default class Map extends React.Component {
       });
   }
 
-  getData() {
-    testRef
-      .get()
-      .then(function (doc) {
-        if (doc.exists) {
-          return doc.data();
-        } else {
-          console.log("No such document!");
-        }
-      })
-      .then(({ lat, lon }) => {
-        this.setState(
-          {
-            lat: Number(lat),
-            lon: Number(lon),
-          },
-          () => this.queryBreezy()
-        );
-      })
-      .catch(function (error) {
-        console.log("Error getting document:", error);
-      });
-  }
+  // getData() {
+  //   testRef
+  //     .get()
+  //     .then(function (doc) {
+  //       if (doc.exists) {
+  //         return doc.data();
+  //       } else {
+  //         console.log("No such document!");
+  //       }
+  //     })
+  //     .then(({ lat, lon }) => {
+  //       this.setState(
+  //         {
+  //           lat: Number(lat),
+  //           lon: Number(lon),
+  //         },
+  //         () => this.queryBreezy()
+  //       );
+  //     })
+  //     .catch(function (error) {
+  //       console.log("Error getting document:", error);
+  //     });
+  // }
 
   componentWillUnmount() {
     this._isMounted = false;
@@ -97,6 +134,18 @@ export default class Map extends React.Component {
         <View>
           <Text>loading...</Text>
         </View>
+      );
+    } else if (this.state.fires.length === 0) {
+      return (
+        <MapView
+          style={styles.container}
+          initialRegion={{
+            latitude: this.state.lat,
+            longitude: this.state.lon,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          }}
+        ></MapView>
       );
     } else {
       return (
@@ -121,8 +170,10 @@ export default class Map extends React.Component {
                 longitude: fire.position.lon,
               }}
               image={require("./assets/clip1.png")}
-              title={fire.details.fire_name}
-              description={fire.details.fire_behavior}
+              title={fire.details !== null ? fire.details.fire_name : ""}
+              description={
+                fire.details !== null ? fire.details.fire_behavior : ""
+              }
             />
           ))}
 
