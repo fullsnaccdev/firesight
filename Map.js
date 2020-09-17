@@ -1,6 +1,13 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Button } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Button,
+  TextInput,
+  TouchableOpacity,
+} from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import MapView, { Marker } from "react-native-maps";
@@ -40,6 +47,7 @@ export default class Map extends React.Component {
       lat: "",
       lon: "",
       fires: [],
+      airQuality: {},
       location: null,
       errorMessage: null,
     };
@@ -76,7 +84,6 @@ export default class Map extends React.Component {
       this.setState({
         errorMessage: "Permission to access location was denied",
       });
-      console.log("inside findcurrentasync", this.state);
     }
 
     let location = await Location.getCurrentPositionAsync();
@@ -94,6 +101,20 @@ export default class Map extends React.Component {
             fires: results.data.data.fires,
           });
         }
+      })
+      .then(() => {
+        axios
+          .get(
+            `https://api.breezometer.com/air-quality/v2/current-conditions?lat=${this.state.lat}&lon=${this.state.lon}&key=${breezy_key}&features=local_aqi`
+          )
+          .then((results) => {
+            console.log("airQuality: ", results.data.data.indexes);
+            if (this._isMounted) {
+              this.setState({
+                airQuality: results.data.data.indexes.usa_epa,
+              });
+            }
+          });
       })
       .catch((err) => {
         console.error(err);
@@ -128,11 +149,30 @@ export default class Map extends React.Component {
     this._isMounted = false;
   }
 
+  changeHandler(e) {
+    this.setState({
+      location: e.target.value,
+    });
+  }
+
   render() {
     if (this.state.lat === "") {
       return (
-        <View>
-          <Text>loading...</Text>
+        <View style={styles.container}>
+          <TextInput
+            style={{ height: 40, borderColor: "gray", borderWidth: 1 }}
+            onChangeText={(e) => {
+              this.changeHandler;
+            }}
+            value={this.state.location}
+            placeholder="Please Input A City"
+          ></TextInput>
+          <TouchableOpacity
+            style={styles.submitButton}
+            // onPress={() => this.login(this.state.email, this.state.password)}
+          >
+            <Text style={styles.submitButtonText}> Submit </Text>
+          </TouchableOpacity>
         </View>
       );
     } else if (this.state.fires.length === 0) {
@@ -149,10 +189,6 @@ export default class Map extends React.Component {
       );
     } else {
       return (
-        // <View style={styles.container}>
-        //   <Text>welcome to firesight</Text>
-        //   <StatusBar style="auto" />
-        // </View>
         <MapView
           style={styles.container}
           initialRegion={{
@@ -177,11 +213,11 @@ export default class Map extends React.Component {
             />
           ))}
 
-          {/* <Marker
-            coordinate={{ latitude: 37.78825, longitude: -122.4324 }}
-            title={"Title"}
-            description={"description"}
-          /> */}
+          <Marker
+            coordinate={{ latitude: this.state.lat, longitude: this.state.lon }}
+            title={"Air Quality"}
+            description={`${this.state.airQuality.category} : ${this.state.airQuality.aqi}`}
+          />
         </MapView>
       );
     }
@@ -191,8 +227,25 @@ export default class Map extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "orange",
+    backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
+    paddingTop: 23,
+  },
+
+  input: {
+    margin: 15,
+    height: 40,
+    borderColor: "#7a42f4",
+    borderWidth: 1,
+  },
+  submitButton: {
+    backgroundColor: "#7a42f4",
+    padding: 10,
+    margin: 15,
+    height: 40,
+  },
+  submitButtonText: {
+    color: "white",
   },
 });
