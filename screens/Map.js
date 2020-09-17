@@ -9,24 +9,15 @@ import * as Location from "expo-location";
 import * as Permissions from "expo-permissions";
 import * as firebase from "firebase";
 import "firebase/firestore";
+import firekey from '../firekey.js'
 import axios from "axios";
-import breezy_key from "./breezy.js";
-import google_key from "./google_key.js";
+import breezy_key from "../breezy.js";
+import google_key from "../google_key.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyA7meYAgCE0tMJesb_fFvwNqM0jnnkuE6M",
-  authDomain: "firetracker-b2b24.firebaseapp.com",
-  databaseURL: "https://firetracker-b2b24.firebaseio.com",
-  projectId: "firetracker-b2b24",
-  storageBucket: "firetracker-b2b24.appspot.com",
-  messagingSenderId: "663538945012",
-  appId: "1:663538945012:ios:f9e263c99b22b3c17507a1",
-  measurementId: "G-L1JSJ6ES4T",
-};
 const Stack = createStackNavigator();
 
 if (firebase.apps.length === 0) {
-  firebase.initializeApp(firebaseConfig);
+  firebase.initializeApp(firekey);
 }
 
 const db = firebase.firestore();
@@ -218,7 +209,7 @@ export default class Map extends React.Component {
                 latitude: fire.position.lat,
                 longitude: fire.position.lon,
               }}
-              image={require("./assets/clip1.png")}
+              image={require("../assets/clip1.png")}
               onCalloutPress={() => this.calloutPress()}
             >
               <Callout>

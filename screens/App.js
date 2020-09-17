@@ -8,20 +8,9 @@ import MapView from "react-native-maps";
 import * as firebase from "firebase";
 import "firebase/firestore";
 import axios from "axios";
-import breezy_key from "./breezy.js";
+import breezy_key from "../breezy.js";
 import Map from "./Map.js";
 import HomeScreen from "./HomeScreen.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyA7meYAgCE0tMJesb_fFvwNqM0jnnkuE6M",
-  authDomain: "firetracker-b2b24.firebaseapp.com",
-  databaseURL: "https://firetracker-b2b24.firebaseio.com",
-  projectId: "firetracker-b2b24",
-  storageBucket: "firetracker-b2b24.appspot.com",
-  messagingSenderId: "663538945012",
-  appId: "1:663538945012:ios:f9e263c99b22b3c17507a1",
-  measurementId: "G-L1JSJ6ES4T",
-};
 
 const Stack = createStackNavigator();
 

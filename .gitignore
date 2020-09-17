@@ -16,3 +16,11 @@ web-build/
 *.plist
 
 breezy.js
+
+google_key.js
+
+firekey.js
+
+firedata.js
+firedata2.js
+location.js

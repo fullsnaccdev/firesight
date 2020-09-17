@@ -9,6 +9,3 @@ module.exports = {
   measurementId: "G-L1JSJ6ES4T",
 };
 
-// firebase.initializeApp(firebaseConfig);
-
-// module.exports = firebaseConfig;
