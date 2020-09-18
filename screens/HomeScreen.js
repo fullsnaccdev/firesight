@@ -6,6 +6,14 @@ import { createStackNavigator } from "@react-navigation/stack";
 // import { Constants } from "expo";
 // import * as Location from "expo-location";
 // import * as Permissions from "expo-permissions";
+import {
+  Header,
+  Container,
+  Icon,
+  Item,
+  Input,
+} from 'native-base';
+
 import MapView from "react-native-maps";
 import * as firebase from "firebase";
 import "firebase/firestore";
@@ -58,16 +66,25 @@ class HomeScreen extends React.Component {
     //   text = JSON.stringify(this.state.location);
     // }
     return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-        <TouchableOpacity>
-          <Text>Welcome to Firesight</Text>
-          {/* <Text>{text}</Text> */}
-        </TouchableOpacity>
-        <Button
-          title="Go to Map"
-          onPress={() => this.props.navigation.navigate("Map")}
-        />
-      </View>
+      <Container>
+        <Header searchBar rounded>
+          <Item>
+            <Icon name="search" />
+            <Input placeholder="Enter Location" />
+          </Item>
+        </Header>
+        <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+          <TouchableOpacity>
+            <Text>Welcome to Firesight</Text>
+            {/* <Text>{text}</Text> */}
+          </TouchableOpacity>
+          <Button
+            title="Go to Map"
+            onPress={() => this.props.navigation.navigate("Map")}
+          />
+        </View>
+
+      </Container>
     );
   }
 }

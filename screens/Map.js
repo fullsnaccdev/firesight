@@ -4,7 +4,14 @@ import { StyleSheet, Text, View, Button, TextInput, TouchableOpacity, Image } fr
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import MapView, { Marker, Callout } from "react-native-maps";
-import { SearchBar } from 'react-native-elements';
+// import { SearchBar } from 'react-native-elements';
+import {
+  Header,
+  Container,
+  Icon,
+  Item,
+  Input,
+} from 'native-base';
 import { Constants } from "expo";
 import * as Location from "expo-location";
 import * as Permissions from "expo-permissions";
@@ -36,6 +43,7 @@ export default class Map extends React.Component {
       airQuality: {},
       location: null,
       errorMessage: null,
+      region: {}
     };
     // this.getData = this.getData.bind(this);
     this.queryBreezy = this.queryBreezy.bind(this);
@@ -52,10 +60,15 @@ export default class Map extends React.Component {
       (position) => {
         const latitude = position.coords.latitude;
         const longitude = position.coords.longitude;
+        let region = {
+          latitude: latitude,
+          longitude: longitude,
+          latitudeDelta: 1,
+          longitudeDelta: 1,
+        }
         this.setState(
           {
-            lat: latitude,
-            lon: longitude,
+            region: region,
           },
           () => this.queryBreezy()
         );
@@ -80,7 +93,7 @@ export default class Map extends React.Component {
   queryBreezy() {
     axios
       .get(
-        `https://api.breezometer.com/fires/v1/current-conditions?lat=${this.state.lat}&lon=${this.state.lon}&key=${breezy_key}&units=imperial&radius=62`
+        `https://api.breezometer.com/fires/v1/current-conditions?lat=${this.state.region.latitude}&lon=${this.state.region.longitude}&key=${breezy_key}&units=imperial&radius=62`
       )
       .then((results) => {
         if (this._isMounted) {
@@ -92,10 +105,10 @@ export default class Map extends React.Component {
       .then(() => {
         axios
           .get(
-            `https://api.breezometer.com/air-quality/v2/current-conditions?lat=${this.state.lat}&lon=${this.state.lon}&key=${breezy_key}&features=local_aqi`
+            `https://api.breezometer.com/air-quality/v2/current-conditions?lat=${this.state.region.latitude}&lon=${this.state.region.longitude}&key=${breezy_key}&features=local_aqi`
           )
           .then((results) => {
-            console.log("airQuality: ", results.data.data.indexes);
+            // console.log("airQuality: ", results.data.data.indexes);
             if (this._isMounted) {
               this.setState({
                 airQuality: results.data.data.indexes.usa_epa,
@@ -104,7 +117,7 @@ export default class Map extends React.Component {
           });
       })
       .catch((err) => {
-        console.error(err);
+        console.error('is it this one? querybreezy', err);
       });
   }
 
@@ -135,15 +148,20 @@ export default class Map extends React.Component {
   getCityCoords() {
     axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${this.state.location}&key=${google_key}`)
       .then((results) => {
-        console.log('location', this.state.location);
-        console.log('results: ', results.results)
+        // console.log('location', this.state.location);
+        // console.log('results: ', results.results)
+        let region = {
+          latitude: results.data.results[0].geometry.location.lat,
+          longitude: results.data.results[0].geometry.location.lng,
+          latitudeDelta: 1,
+          longitudeDelta: 1,
+        }
         this.setState({
-          lat: results.data.results[0].geometry.location.lat,
-          lon: results.data.results[0].geometry.location.lng
+          region: region,
         })
       })
       .then(() => this.queryBreezy())
-      .catch((error) => console.error(error))
+      .catch((error) => console.error('getcitycoords', error))
   }
 
   componentWillUnmount() {
@@ -161,8 +179,23 @@ export default class Map extends React.Component {
     console.log('hey!')
   }
 
+  getInitialState() {
+    return {
+      region: {
+        latitude: 37.78825,
+        longitude: -122.4324,
+        latitudeDelta: 1,
+        longitudeDelta: 1,
+      },
+    };
+  }
+
+  onRegionChange(region) {
+    this.setState({ region });
+  }
+
   render() {
-    if (this.state.lat === "") {
+    if (this.state.region.latitude === "") {
       return (
         <View style={styles.container}>
           <TextInput
@@ -186,24 +219,35 @@ export default class Map extends React.Component {
         <MapView
           style={styles.container
           }
-          initialRegion={{
-            latitude: this.state.lat,
-            longitude: this.state.lon,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          }}
+          initialRegion={this.state.region}
+          region={this.state.region}
+          // initialRegion={{
+          //   latitude: this.state.lat,
+          //   longitude: this.state.lon,
+          //   latitudeDelta: 0.0922,
+          //   longitudeDelta: 0.0421,
+          // }}
         ></MapView>
       );
     } else {
       return (
+        <Container>
+        <Header searchBar rounded>
+          <Item>
+            <Icon name="search" />
+            <Input placeholder="Enter Location" onChangeText={(text) => {
+              this.changeHandler(text);
+            }} onSubmitEditing={() => this.getCityCoords()}  />
+          </Item>
+        </Header>
         <MapView
           style={styles.container}
-          initialRegion={{
-            latitude: this.state.lat,
-            longitude: this.state.lon,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          }}>
+          initialRegion={this.state.region}
+          // initialRegion={{
+          //   region: this.state.region
+          // }}
+          region={this.state.region}
+          >
           {this.state.fires.map((fire, index) => {
             if (fire.details && fire.details.size.value > 5) {
               return (
@@ -239,7 +283,7 @@ export default class Map extends React.Component {
           })
           }
           < Marker
-            coordinate={{ latitude: this.state.lat, longitude: this.state.lon }}
+            coordinate={{ latitude: this.state.region.latitude, longitude: this.state.region.longitude }}
             // title={"Air Quality"}
             onCalloutPress={() => this.calloutPress()}
           // description={`${this.state.airQuality.category} : ${this.state.airQuality.aqi}`}
@@ -252,6 +296,7 @@ export default class Map extends React.Component {
             </Callout>
           </Marker >
         </MapView >
+        </Container>
       );
     }
   }
