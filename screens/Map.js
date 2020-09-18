@@ -37,13 +37,16 @@ export default class Map extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      lat: "",
-      lon: "",
       fires: [],
       airQuality: {},
       location: null,
       errorMessage: null,
-      region: {}
+      region: {
+        latitude: 34.127850,
+        longitude: -118.300501,
+        latitudeDelta: 1,
+        longitudeDelta: 1,
+      }
     };
     // this.getData = this.getData.bind(this);
     this.queryBreezy = this.queryBreezy.bind(this);
@@ -195,41 +198,41 @@ export default class Map extends React.Component {
   }
 
   render() {
-    if (this.state.region.latitude === "") {
-      return (
-        <View style={styles.container}>
-          <TextInput
-            style={{ height: 40, borderColor: "gray", borderWidth: 1 }}
-            onChangeText={(text) => {
-              this.changeHandler(text);
-            }}
-            value={this.state.location}
-            placeholder="Please Input A City"
-          ></TextInput>
-          <TouchableOpacity
-            style={styles.submitButton}
-            onPress={() => { this.getCityCoords() }}
-          >
-            <Text style={styles.submitButtonText}> Submit </Text>
-          </TouchableOpacity>
-        </View>
-      );
-    } else if (this.state.fires.length === 0) {
-      return (
-        <MapView
-          style={styles.container
-          }
-          initialRegion={this.state.region}
-          region={this.state.region}
-          // initialRegion={{
-          //   latitude: this.state.lat,
-          //   longitude: this.state.lon,
-          //   latitudeDelta: 0.0922,
-          //   longitudeDelta: 0.0421,
-          // }}
-        ></MapView>
-      );
-    } else {
+    // if (this.state.location === "") {
+    //   return (
+    //     <View style={styles.container}>
+    //       <TextInput
+    //         style={{ height: 40, borderColor: "gray", borderWidth: 1 }}
+    //         onChangeText={(text) => {
+    //           this.changeHandler(text);
+    //         }}
+    //         value={this.state.location}
+    //         placeholder="Please Input A City"
+    //       ></TextInput>
+    //       <TouchableOpacity
+    //         style={styles.submitButton}
+    //         onPress={() => { this.getCityCoords() }}
+    //       >
+    //         <Text style={styles.submitButtonText}> Submit </Text>
+    //       </TouchableOpacity>
+    //     </View>
+    //   );
+    // } else if (this.state.fires.length === 0) {
+    //   return (
+    //     <MapView
+    //       style={styles.container
+    //       }
+    //       initialRegion={this.state.region}
+    //       region={this.state.region}
+    //       // initialRegion={{
+    //       //   latitude: this.state.lat,
+    //       //   longitude: this.state.lon,
+    //       //   latitudeDelta: 0.0922,
+    //       //   longitudeDelta: 0.0421,
+    //       // }}
+    //     ></MapView>
+    //   );
+    // } else {
       return (
         <Container>
         <Header searchBar rounded>
@@ -300,7 +303,7 @@ export default class Map extends React.Component {
       );
     }
   }
-}
+
 
 const styles = StyleSheet.create({
   container: {
