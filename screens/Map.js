@@ -1,25 +1,27 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Button, TextInput, TouchableOpacity, Image } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Button,
+  TextInput,
+  TouchableOpacity,
+  Image,
+  Keyboard,
+} from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import MapView, { Marker, Callout } from "react-native-maps";
 // import { SearchBar } from 'react-native-elements';
-import moment from 'moment';
-import {
-  Header,
-  Footer,
-  Container,
-  Icon,
-  Item,
-  Input,
-} from 'native-base';
+import moment from "moment";
+import { Header, Footer, Container, Icon, Item, Input } from "native-base";
 import { Constants } from "expo";
 import * as Location from "expo-location";
 import * as Permissions from "expo-permissions";
 import * as firebase from "firebase";
 import "firebase/firestore";
-import firekey from '../firekey2.js'
+import firekey from "../firekey2.js";
 import axios from "axios";
 import breezy_key from "../breezy_key.js";
 import google_key from "../google_key2.js";
@@ -44,19 +46,18 @@ export default class Map extends React.Component {
       location: null,
       errorMessage: null,
       region: {
-        latitude: 34.127850,
+        latitude: 34.12785,
         longitude: -118.300501,
         latitudeDelta: 1,
         longitudeDelta: 1,
       },
       permissionGranted: false,
       locationEntered: false,
-      timeStamp: ''
+      timeStamp: "",
     };
     // this.getData = this.getData.bind(this);
     this.queryBreezy = this.queryBreezy.bind(this);
     this.getCityCoords = this.getCityCoords.bind(this);
-    // this.myTextInput = React.createRef();
   }
   componentDidMount() {
     this._isMounted = true;
@@ -78,11 +79,11 @@ export default class Map extends React.Component {
           longitude: longitude,
           latitudeDelta: 1,
           longitudeDelta: 1,
-        }
+        };
         this.setState(
           {
             region: region,
-            permissionGranted: true
+            permissionGranted: true,
           },
           () => this.queryBreezy()
         );
@@ -133,8 +134,8 @@ export default class Map extends React.Component {
         this.setState({
           locationEntered: true,
           timeStamp: moment().calendar(),
-          location: ''
-        })
+          location: "",
+        });
       })
       .catch((err) => {
         console.error(err);
@@ -166,21 +167,23 @@ export default class Map extends React.Component {
   // }
 
   getCityCoords() {
-    axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${this.state.location}&key=${google_key}`)
+    axios
+      .get(
+        `https://maps.googleapis.com/maps/api/geocode/json?address=${this.state.location}&key=${google_key}`
+      )
       .then((results) => {
         let region = {
           latitude: results.data.results[0].geometry.location.lat,
           longitude: results.data.results[0].geometry.location.lng,
           latitudeDelta: 1,
           longitudeDelta: 1,
-        }
+        };
         this.setState({
           region: region,
-        })
+        });
       })
-      // .then(() => this.myTextInput.current.clear())
       .then(() => this.queryBreezy())
-      .catch((err) => console.error(err))
+      .catch((err) => console.error(err));
   }
 
   componentWillUnmount() {
@@ -194,23 +197,23 @@ export default class Map extends React.Component {
   }
 
   calloutPress() {
-    console.log('hey!')
+    console.log("hey!");
   }
 
-  getInitialState() {
-    return {
-      region: {
-        latitude: 37.78825,
-        longitude: -122.4324,
-        latitudeDelta: 1,
-        longitudeDelta: 1,
-      },
-    };
-  }
+  // getInitialState() {
+  //   return {
+  //     region: {
+  //       latitude: 37.78825,
+  //       longitude: -122.4324,
+  //       latitudeDelta: 1,
+  //       longitudeDelta: 1,
+  //     },
+  //   };
+  // }
 
-  onRegionChange(region) {
-    this.setState({ region });
-  }
+  // onRegionChange(region) {
+  //   this.setState({ region });
+  // }
 
   render() {
     if (!this.state.permissionGranted && !this.state.locationEntered) {
@@ -219,37 +222,41 @@ export default class Map extends React.Component {
           <Header searchBar rounded style={styles.headerStyle}>
             <Item>
               <Icon name="search" />
-              <Input placeholder="Enter Location"
-              onChangeText={(text) => {
-                this.changeHandler(text);
-              }}
-              onSubmitEditing={() => this.getCityCoords()}
-              // ref={input => { this.textInput = input }}
-              clearButtonMode="always"
+              <Input
+                placeholder="Enter Location"
+                onChangeText={(text) => {
+                  this.changeHandler(text);
+                }}
+                onSubmitEditing={() => this.getCityCoords()}
+                clearButtonMode="always"
+                value={this.state.location}
               />
             </Item>
           </Header>
           <MapView
+            onPress={() => {
+              Keyboard.dismiss();
+            }}
             style={styles.container}
             initialRegion={this.state.region}
             region={this.state.region}
           ></MapView>
         </Container>
-      )
-
+      );
     } else {
       return (
         <Container>
           <Header searchBar rounded style={styles.headerStyle}>
             <Item>
               <Icon name="search" />
-              <Input placeholder="Enter Location"
-              onChangeText={(text) => {
-                this.changeHandler(text);
-              }}
-              onSubmitEditing={() => this.getCityCoords()}
-              // ref={input => { this.textInput = input }}
-              clearButtonMode="always"
+              <Input
+                placeholder="Enter Location"
+                onChangeText={(text) => {
+                  this.changeHandler(text);
+                }}
+                value={this.state.location}
+                onSubmitEditing={() => this.getCityCoords()}
+                clearButtonMode="always"
               />
             </Item>
           </Header>
@@ -257,6 +264,9 @@ export default class Map extends React.Component {
             style={styles.container}
             initialRegion={this.state.region}
             region={this.state.region}
+            onPress={() => {
+              Keyboard.dismiss();
+            }}
           >
             {this.state.fires.map((fire, index) => {
               if (fire.details && fire.details.size.value > 5) {
@@ -276,37 +286,50 @@ export default class Map extends React.Component {
                     >
                       <View>
                         <Text style={styles.calloutTitle}>
-                          {fire.details !== null && fire.details.fire_name !== null ? fire.details.fire_name : null}
+                          {fire.details !== null &&
+                          fire.details.fire_name !== null
+                            ? fire.details.fire_name
+                            : null}
                         </Text>
                         <Text style={styles.calloutDescription}>
-                          {fire.details !== null && fire.details.percent_contained !== null ? `${fire.details.percent_contained}% contained` : null}
+                          {fire.details !== null &&
+                          fire.details.percent_contained !== null
+                            ? `${fire.details.percent_contained}% contained`
+                            : null}
                         </Text>
                         <Text style={styles.calloutDescription}>
-                          {fire.details !== null && fire.details.size.value !== null ? `${fire.details.size.value} acres` : null}
+                          {fire.details !== null &&
+                          fire.details.size.value !== null
+                            ? `${fire.details.size.value} acres`
+                            : null}
                         </Text>
                       </View>
                     </Callout>
                   </Marker>
-                )
+                );
               }
-            })
-            }
-            < Marker
-              coordinate={{ latitude: this.state.region.latitude, longitude: this.state.region.longitude }}
+            })}
+            <Marker
+              coordinate={{
+                latitude: this.state.region.latitude,
+                longitude: this.state.region.longitude,
+              }}
               // title={"Air Quality"}
               onCalloutPress={() => this.calloutPress()}
-            // description={`${this.state.airQuality.category} : ${this.state.airQuality.aqi}`}
+              // description={`${this.state.airQuality.category} : ${this.state.airQuality.aqi}`}
             >
               <Callout>
                 <View>
                   <Text style={styles.calloutTitle}>{"Air Quality"}</Text>
-                  <Text style={styles.calloutDescription}>{`AQI: ${this.state.airQuality.aqi}\n${this.state.airQuality.category}`}</Text>
+                  <Text
+                    style={styles.calloutDescription}
+                  >{`AQI: ${this.state.airQuality.aqi}\n${this.state.airQuality.category}`}</Text>
                 </View>
               </Callout>
-            </Marker >
-          </MapView >
+            </Marker>
+          </MapView>
           <Footer style={styles.footerStyle}>
-            <Text style={{color: 'white'}} >
+            <Text style={{ color: "white" }}>
               Updated {this.state.timeStamp}
             </Text>
           </Footer>
@@ -316,80 +339,79 @@ export default class Map extends React.Component {
   }
 }
 
-  const styles = StyleSheet.create({
-    container: {
-      //display: "flex",
-      flex: 1,
-      backgroundColor: "#fff",
-      alignItems: "center",
-      justifyContent: "center",
-      paddingTop: 23,
-      //height: "100%"
-      position: "relative"
-    },
+const styles = StyleSheet.create({
+  container: {
+    //display: "flex",
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingTop: 23,
+    //height: "100%"
+    position: "relative",
+  },
 
-    footerStyle: {
-      height: 20,
-      position: "absolute",
-      zIndex: 100,
-      backgroundColor: "black",
-    },
+  footerStyle: {
+    height: 20,
+    position: "absolute",
+    zIndex: 100,
+    backgroundColor: "black",
+  },
 
-    headerStyle: {
-      backgroundColor: "white",
-      height: 40,
+  headerStyle: {
+    backgroundColor: "white",
+    height: 40,
+  },
 
-    },
+  mapView: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 
-    mapView: {
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "space-between",
-      alignItems: "center",
-      justifyContent: "center",
-    },
+  mapStyle: {
+    display: "flex",
+    flex: 5,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingTop: 23,
+    height: "100%",
+  },
 
-    mapStyle: {
-      display: "flex",
-      flex: 5,
-      backgroundColor: "#fff",
-      alignItems: "center",
-      justifyContent: "center",
-      paddingTop: 23,
-      height: "100%"
-    },
+  searchBarStyle: {
+    display: "flex",
+    flex: 1,
+  },
 
-    searchBarStyle: {
-      display: "flex",
-      flex: 1
-    },
-
-    input: {
-      margin: 15,
-      height: 40,
-      borderColor: "#7a42f4",
-      borderWidth: 1,
-      padding: 10
-    },
-    submitButton: {
-      backgroundColor: "orange",
-      padding: 10,
-      margin: 15,
-      height: 40,
-    },
-    submitButtonText: {
-      color: "white",
-    },
-    calloutPopup: {
-      height: "auto",
-      width: 100
-    },
-    calloutTitle: {
-      fontSize: 17,
-      marginBottom: 5,
-      fontWeight: "bold"
-    },
-    calloutDescription: {
-      fontSize: 14
-    }
-  });
+  input: {
+    margin: 15,
+    height: 40,
+    borderColor: "#7a42f4",
+    borderWidth: 1,
+    padding: 10,
+  },
+  submitButton: {
+    backgroundColor: "orange",
+    padding: 10,
+    margin: 15,
+    height: 40,
+  },
+  submitButtonText: {
+    color: "white",
+  },
+  calloutPopup: {
+    height: "auto",
+    width: 100,
+  },
+  calloutTitle: {
+    fontSize: 17,
+    marginBottom: 5,
+    fontWeight: "bold",
+  },
+  calloutDescription: {
+    fontSize: 14,
+  },
+});
