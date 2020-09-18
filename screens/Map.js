@@ -1,9 +1,10 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Button, TextInput, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, View, Button, TextInput, TouchableOpacity, Image } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import MapView, { Marker, Callout } from "react-native-maps";
+import { SearchBar } from 'react-native-elements';
 import { Constants } from "expo";
 import * as Location from "expo-location";
 import * as Permissions from "expo-permissions";
@@ -156,7 +157,8 @@ export default class Map extends React.Component {
   }
 
   calloutPress() {
-    console.log("hello!");
+    // this.props.navigation.navigate("DetailView")
+    console.log('hey!')
   }
 
   render() {
@@ -182,7 +184,8 @@ export default class Map extends React.Component {
     } else if (this.state.fires.length === 0) {
       return (
         <MapView
-          style={styles.container}
+          style={styles.container
+          }
           initialRegion={{
             latitude: this.state.lat,
             longitude: this.state.lon,
@@ -200,35 +203,42 @@ export default class Map extends React.Component {
             longitude: this.state.lon,
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421,
-          }}
-        >
-          {this.state.fires.map((fire, index) => (
-            <Marker
-              key={index}
-              coordinate={{
-                latitude: fire.position.lat,
-                longitude: fire.position.lon,
-              }}
-              image={require("../assets/clip1.png")}
-              onCalloutPress={() => this.calloutPress()}
-            >
-              <Callout>
-                <View>
-                  <Text style={styles.calloutTitle}>
-                    {fire.details !== null && fire.details.fire_name !== null ? fire.details.fire_name : null}
-                  </Text>
-                  <Text style={styles.calloutDescription}>
-                    {fire.details !== null && fire.details.percent_contained !== null ? `${fire.details.percent_contained}% contained` : null}
-                  </Text>
-                  <Text style={styles.calloutDescription}>
-                    {fire.details !== null && fire.details.size.value !== null ? `${fire.details.size.value} acres` : null}
-                  </Text>
-                </View>
-              </Callout>
-            </Marker>
-          ))}
+          }}>
+          {this.state.fires.map((fire, index) => {
+            if (fire.details && fire.details.size.value > 5) {
+              return (
+                <Marker
+                  key={index}
+                  image={require("../assets/clip1.png")}
+                  coordinate={{
+                    latitude: fire.position.lat,
+                    longitude: fire.position.lon,
+                  }}
+                  onCalloutPress={() => this.calloutPress()}
+                >
+                  {/* <Image source={require("../assets/clip1.png")} style={{ "height": .0005 * fire.details.size.value, "width": .0005 * fire.details.size.value }} /> */}
+                  <Callout
+                  // style={styles.calloutPopup}
+                  >
+                    <View>
+                      <Text style={styles.calloutTitle}>
+                        {fire.details !== null && fire.details.fire_name !== null ? fire.details.fire_name : null}
+                      </Text>
+                      <Text style={styles.calloutDescription}>
+                        {fire.details !== null && fire.details.percent_contained !== null ? `${fire.details.percent_contained}% contained` : null}
+                      </Text>
+                      <Text style={styles.calloutDescription}>
+                        {fire.details !== null && fire.details.size.value !== null ? `${fire.details.size.value} acres` : null}
+                      </Text>
+                    </View>
+                  </Callout>
+                </Marker>
 
-          <Marker
+              )
+            }
+          })
+          }
+          < Marker
             coordinate={{ latitude: this.state.lat, longitude: this.state.lon }}
             // title={"Air Quality"}
             onCalloutPress={() => this.calloutPress()}
@@ -240,9 +250,8 @@ export default class Map extends React.Component {
                 <Text style={styles.calloutDescription}>{`AQI: ${this.state.airQuality.aqi}\n${this.state.airQuality.category}`}</Text>
               </View>
             </Callout>
-          </Marker>
-
-        </MapView>
+          </Marker >
+        </MapView >
       );
     }
   }
@@ -250,11 +259,36 @@ export default class Map extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
+    //display: "flex",
     flex: 1,
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
     paddingTop: 23,
+    //height: "100%"
+  },
+
+  mapView: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  mapStyle: {
+    display: "flex",
+    flex: 5,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingTop: 23,
+    height: "100%"
+  },
+
+  searchBarStyle: {
+    display: "flex",
+    flex: 1
   },
 
   input: {
@@ -272,6 +306,10 @@ const styles = StyleSheet.create({
   },
   submitButtonText: {
     color: "white",
+  },
+  calloutPopup: {
+    height: "auto",
+    width: 100
   },
   calloutTitle: {
     fontSize: 17,
