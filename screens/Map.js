@@ -46,7 +46,9 @@ export default class Map extends React.Component {
         longitude: -118.300501,
         latitudeDelta: 1,
         longitudeDelta: 1,
-      }
+      },
+      permissionGranted: false,
+      locationEntered: false
     };
     // this.getData = this.getData.bind(this);
     this.queryBreezy = this.queryBreezy.bind(this);
@@ -72,6 +74,7 @@ export default class Map extends React.Component {
         this.setState(
           {
             region: region,
+            permissionGranted: true
           },
           () => this.queryBreezy()
         );
@@ -118,6 +121,11 @@ export default class Map extends React.Component {
               });
             }
           });
+      })
+      .then(() => {
+        this.setState({
+          locationEntered: true
+        })
       })
       .catch((err) => {
         console.error('is it this one? querybreezy', err);
@@ -198,173 +206,158 @@ export default class Map extends React.Component {
   }
 
   render() {
-    // if (this.state.location === "") {
-    //   return (
-    //     <View style={styles.container}>
-    //       <TextInput
-    //         style={{ height: 40, borderColor: "gray", borderWidth: 1 }}
-    //         onChangeText={(text) => {
-    //           this.changeHandler(text);
-    //         }}
-    //         value={this.state.location}
-    //         placeholder="Please Input A City"
-    //       ></TextInput>
-    //       <TouchableOpacity
-    //         style={styles.submitButton}
-    //         onPress={() => { this.getCityCoords() }}
-    //       >
-    //         <Text style={styles.submitButtonText}> Submit </Text>
-    //       </TouchableOpacity>
-    //     </View>
-    //   );
-    // } else if (this.state.fires.length === 0) {
-    //   return (
-    //     <MapView
-    //       style={styles.container
-    //       }
-    //       initialRegion={this.state.region}
-    //       region={this.state.region}
-    //       // initialRegion={{
-    //       //   latitude: this.state.lat,
-    //       //   longitude: this.state.lon,
-    //       //   latitudeDelta: 0.0922,
-    //       //   longitudeDelta: 0.0421,
-    //       // }}
-    //     ></MapView>
-    //   );
-    // } else {
+    if (!this.state.permissionGranted && !this.state.locationEntered) {
       return (
         <Container>
-        <Header searchBar rounded>
-          <Item>
-            <Icon name="search" />
-            <Input placeholder="Enter Location" onChangeText={(text) => {
-              this.changeHandler(text);
-            }} onSubmitEditing={() => this.getCityCoords()}  />
-          </Item>
-        </Header>
-        <MapView
-          style={styles.container}
-          initialRegion={this.state.region}
-          // initialRegion={{
-          //   region: this.state.region
-          // }}
-          region={this.state.region}
-          >
-          {this.state.fires.map((fire, index) => {
-            if (fire.details && fire.details.size.value > 5) {
-              return (
-                <Marker
-                  key={index}
-                  image={require("../assets/clip1.png")}
-                  coordinate={{
-                    latitude: fire.position.lat,
-                    longitude: fire.position.lon,
-                  }}
-                  onCalloutPress={() => this.calloutPress()}
-                >
-                  {/* <Image source={require("../assets/clip1.png")} style={{ "height": .0005 * fire.details.size.value, "width": .0005 * fire.details.size.value }} /> */}
-                  <Callout
-                  // style={styles.calloutPopup}
-                  >
-                    <View>
-                      <Text style={styles.calloutTitle}>
-                        {fire.details !== null && fire.details.fire_name !== null ? fire.details.fire_name : null}
-                      </Text>
-                      <Text style={styles.calloutDescription}>
-                        {fire.details !== null && fire.details.percent_contained !== null ? `${fire.details.percent_contained}% contained` : null}
-                      </Text>
-                      <Text style={styles.calloutDescription}>
-                        {fire.details !== null && fire.details.size.value !== null ? `${fire.details.size.value} acres` : null}
-                      </Text>
-                    </View>
-                  </Callout>
-                </Marker>
+          <Header searchBar rounded style={{ backgroundColor: "transparent" }}>
+            <Item>
+              <Icon name="search" />
+              <Input placeholder="Enter Location" onChangeText={(text) => {
+                this.changeHandler(text);
+              }} onSubmitEditing={() => this.getCityCoords()} />
+            </Item>
+          </Header>
+          <MapView
+            style={styles.container}
+            initialRegion={this.state.region}
+            region={this.state.region}
+          ></MapView>
+        </Container>
+      )
 
-              )
-            }
-          })
-          }
-          < Marker
-            coordinate={{ latitude: this.state.region.latitude, longitude: this.state.region.longitude }}
-            // title={"Air Quality"}
-            onCalloutPress={() => this.calloutPress()}
-          // description={`${this.state.airQuality.category} : ${this.state.airQuality.aqi}`}
+    } else {
+      return (
+        <Container>
+          <Header searchBar rounded style={{ backgroundColor: "transparent" }}>
+            <Item>
+              <Icon name="search" />
+              <Input placeholder="Enter Location" onChangeText={(text) => {
+                this.changeHandler(text);
+              }} onSubmitEditing={() => this.getCityCoords()} />
+            </Item>
+          </Header>
+          <MapView
+            style={styles.container}
+            initialRegion={this.state.region}
+            // initialRegion={{
+            //   region: this.state.region
+            // }}
+            region={this.state.region}
           >
-            <Callout>
-              <View>
-                <Text style={styles.calloutTitle}>{"Air Quality"}</Text>
-                <Text style={styles.calloutDescription}>{`AQI: ${this.state.airQuality.aqi}\n${this.state.airQuality.category}`}</Text>
-              </View>
-            </Callout>
-          </Marker >
-        </MapView >
+            {this.state.fires.map((fire, index) => {
+              if (fire.details && fire.details.size.value > 5) {
+                return (
+                  <Marker
+                    key={index}
+                    image={require("../assets/clip1.png")}
+                    coordinate={{
+                      latitude: fire.position.lat,
+                      longitude: fire.position.lon,
+                    }}
+                    onCalloutPress={() => this.calloutPress()}
+                  >
+                    {/* <Image source={require("../assets/clip1.png")} style={{ "height": .0005 * fire.details.size.value, "width": .0005 * fire.details.size.value }} /> */}
+                    <Callout
+                    // style={styles.calloutPopup}
+                    >
+                      <View>
+                        <Text style={styles.calloutTitle}>
+                          {fire.details !== null && fire.details.fire_name !== null ? fire.details.fire_name : null}
+                        </Text>
+                        <Text style={styles.calloutDescription}>
+                          {fire.details !== null && fire.details.percent_contained !== null ? `${fire.details.percent_contained}% contained` : null}
+                        </Text>
+                        <Text style={styles.calloutDescription}>
+                          {fire.details !== null && fire.details.size.value !== null ? `${fire.details.size.value} acres` : null}
+                        </Text>
+                      </View>
+                    </Callout>
+                  </Marker>
+
+                )
+              }
+            })
+            }
+            < Marker
+              coordinate={{ latitude: this.state.region.latitude, longitude: this.state.region.longitude }}
+              // title={"Air Quality"}
+              onCalloutPress={() => this.calloutPress()}
+            // description={`${this.state.airQuality.category} : ${this.state.airQuality.aqi}`}
+            >
+              <Callout>
+                <View>
+                  <Text style={styles.calloutTitle}>{"Air Quality"}</Text>
+                  <Text style={styles.calloutDescription}>{`AQI: ${this.state.airQuality.aqi}\n${this.state.airQuality.category}`}</Text>
+                </View>
+              </Callout>
+            </Marker >
+          </MapView >
         </Container>
       );
     }
   }
+}
 
+  const styles = StyleSheet.create({
+    container: {
+      //display: "flex",
+      flex: 1,
+      backgroundColor: "#fff",
+      alignItems: "center",
+      justifyContent: "center",
+      paddingTop: 23,
+      //height: "100%"
+    },
 
-const styles = StyleSheet.create({
-  container: {
-    //display: "flex",
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingTop: 23,
-    //height: "100%"
-  },
+    mapView: {
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "space-between",
+      alignItems: "center",
+      justifyContent: "center",
+    },
 
-  mapView: {
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
-    alignItems: "center",
-    justifyContent: "center",
-  },
+    mapStyle: {
+      display: "flex",
+      flex: 5,
+      backgroundColor: "#fff",
+      alignItems: "center",
+      justifyContent: "center",
+      paddingTop: 23,
+      height: "100%"
+    },
 
-  mapStyle: {
-    display: "flex",
-    flex: 5,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingTop: 23,
-    height: "100%"
-  },
+    searchBarStyle: {
+      display: "flex",
+      flex: 1
+    },
 
-  searchBarStyle: {
-    display: "flex",
-    flex: 1
-  },
-
-  input: {
-    margin: 15,
-    height: 40,
-    borderColor: "#7a42f4",
-    borderWidth: 1,
-    padding: 10
-  },
-  submitButton: {
-    backgroundColor: "orange",
-    padding: 10,
-    margin: 15,
-    height: 40,
-  },
-  submitButtonText: {
-    color: "white",
-  },
-  calloutPopup: {
-    height: "auto",
-    width: 100
-  },
-  calloutTitle: {
-    fontSize: 17,
-    marginBottom: 5,
-    fontWeight: "bold"
-  },
-  calloutDescription: {
-    fontSize: 14
-  }
-});
+    input: {
+      margin: 15,
+      height: 40,
+      borderColor: "#7a42f4",
+      borderWidth: 1,
+      padding: 10
+    },
+    submitButton: {
+      backgroundColor: "orange",
+      padding: 10,
+      margin: 15,
+      height: 40,
+    },
+    submitButtonText: {
+      color: "white",
+    },
+    calloutPopup: {
+      height: "auto",
+      width: 100
+    },
+    calloutTitle: {
+      fontSize: 17,
+      marginBottom: 5,
+      fontWeight: "bold"
+    },
+    calloutDescription: {
+      fontSize: 14
+    }
+  });
