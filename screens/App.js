@@ -8,7 +8,7 @@ import MapView from "react-native-maps";
 import * as firebase from "firebase";
 import "firebase/firestore";
 import axios from "axios";
-import breezy_key from "../breezy.js";
+import breezy_key from "../breezy_key.js";
 import Map from "./Map.js";
 import HomeScreen from "./HomeScreen.js";
 

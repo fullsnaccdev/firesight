@@ -5,8 +5,10 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import MapView, { Marker, Callout } from "react-native-maps";
 // import { SearchBar } from 'react-native-elements';
+import moment from 'moment';
 import {
   Header,
+  Footer,
   Container,
   Icon,
   Item,
@@ -19,7 +21,7 @@ import * as firebase from "firebase";
 import "firebase/firestore";
 import firekey from '../firekey2.js'
 import axios from "axios";
-import breezy_key from "../breezy.js";
+import breezy_key from "../breezy_key.js";
 import google_key from "../google_key2.js";
 
 const Stack = createStackNavigator();
@@ -48,17 +50,23 @@ export default class Map extends React.Component {
         longitudeDelta: 1,
       },
       permissionGranted: false,
-      locationEntered: false
+      locationEntered: false,
+      timeStamp: ''
     };
     // this.getData = this.getData.bind(this);
     this.queryBreezy = this.queryBreezy.bind(this);
     this.getCityCoords = this.getCityCoords.bind(this);
+    // this.myTextInput = React.createRef();
   }
   componentDidMount() {
     this._isMounted = true;
     this.findCurrentLocation();
     // this.getData();
   }
+
+  // updateData() {
+  //   setInterval(this.queryBreezy, 10000)
+  // }
 
   findCurrentLocation() {
     navigator.geolocation.getCurrentPosition(
@@ -114,7 +122,6 @@ export default class Map extends React.Component {
             `https://api.breezometer.com/air-quality/v2/current-conditions?lat=${this.state.region.latitude}&lon=${this.state.region.longitude}&key=${breezy_key}&features=local_aqi`
           )
           .then((results) => {
-            // console.log("airQuality: ", results.data.data.indexes);
             if (this._isMounted) {
               this.setState({
                 airQuality: results.data.data.indexes.usa_epa,
@@ -124,11 +131,13 @@ export default class Map extends React.Component {
       })
       .then(() => {
         this.setState({
-          locationEntered: true
+          locationEntered: true,
+          timeStamp: moment().calendar(),
+          location: ''
         })
       })
       .catch((err) => {
-        console.error('is it this one? querybreezy', err);
+        console.error(err);
       });
   }
 
@@ -159,8 +168,6 @@ export default class Map extends React.Component {
   getCityCoords() {
     axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${this.state.location}&key=${google_key}`)
       .then((results) => {
-        // console.log('location', this.state.location);
-        // console.log('results: ', results.results)
         let region = {
           latitude: results.data.results[0].geometry.location.lat,
           longitude: results.data.results[0].geometry.location.lng,
@@ -171,8 +178,9 @@ export default class Map extends React.Component {
           region: region,
         })
       })
+      // .then(() => this.myTextInput.current.clear())
       .then(() => this.queryBreezy())
-      .catch((error) => console.error('getcitycoords', error))
+      .catch((err) => console.error(err))
   }
 
   componentWillUnmount() {
@@ -186,7 +194,6 @@ export default class Map extends React.Component {
   }
 
   calloutPress() {
-    // this.props.navigation.navigate("DetailView")
     console.log('hey!')
   }
 
@@ -209,12 +216,17 @@ export default class Map extends React.Component {
     if (!this.state.permissionGranted && !this.state.locationEntered) {
       return (
         <Container>
-          <Header searchBar rounded style={{ backgroundColor: "transparent" }}>
+          <Header searchBar rounded style={styles.headerStyle}>
             <Item>
               <Icon name="search" />
-              <Input placeholder="Enter Location" onChangeText={(text) => {
+              <Input placeholder="Enter Location"
+              onChangeText={(text) => {
                 this.changeHandler(text);
-              }} onSubmitEditing={() => this.getCityCoords()} />
+              }}
+              onSubmitEditing={() => this.getCityCoords()}
+              // ref={input => { this.textInput = input }}
+              clearButtonMode="always"
+              />
             </Item>
           </Header>
           <MapView
@@ -228,20 +240,22 @@ export default class Map extends React.Component {
     } else {
       return (
         <Container>
-          <Header searchBar rounded style={{ backgroundColor: "transparent" }}>
+          <Header searchBar rounded style={styles.headerStyle}>
             <Item>
               <Icon name="search" />
-              <Input placeholder="Enter Location" onChangeText={(text) => {
+              <Input placeholder="Enter Location"
+              onChangeText={(text) => {
                 this.changeHandler(text);
-              }} onSubmitEditing={() => this.getCityCoords()} />
+              }}
+              onSubmitEditing={() => this.getCityCoords()}
+              // ref={input => { this.textInput = input }}
+              clearButtonMode="always"
+              />
             </Item>
           </Header>
           <MapView
             style={styles.container}
             initialRegion={this.state.region}
-            // initialRegion={{
-            //   region: this.state.region
-            // }}
             region={this.state.region}
           >
             {this.state.fires.map((fire, index) => {
@@ -273,7 +287,6 @@ export default class Map extends React.Component {
                       </View>
                     </Callout>
                   </Marker>
-
                 )
               }
             })
@@ -292,6 +305,11 @@ export default class Map extends React.Component {
               </Callout>
             </Marker >
           </MapView >
+          <Footer style={styles.footerStyle}>
+            <Text style={{color: 'white'}} >
+              Updated {this.state.timeStamp}
+            </Text>
+          </Footer>
         </Container>
       );
     }
@@ -307,6 +325,20 @@ export default class Map extends React.Component {
       justifyContent: "center",
       paddingTop: 23,
       //height: "100%"
+      position: "relative"
+    },
+
+    footerStyle: {
+      height: 20,
+      position: "absolute",
+      zIndex: 100,
+      backgroundColor: "black",
+    },
+
+    headerStyle: {
+      backgroundColor: "white",
+      height: 40,
+
     },
 
     mapView: {

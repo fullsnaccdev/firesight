@@ -20,6 +20,7 @@
     "expo-status-bar": "^1.0.2",
     "express": "^4.17.1",
     "firebase": "^7.21.0",
+    "moment": "^2.28.0",
     "morgan": "^1.10.0",
     "native-base": "^2.13.14",
     "react": "~16.13.1",
