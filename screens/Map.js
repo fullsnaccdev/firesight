@@ -16,6 +16,8 @@ import MapView, { Marker, Callout } from "react-native-maps";
 // import { SearchBar } from 'react-native-elements';
 import moment from "moment";
 import { Header, Footer, Container, Icon, Item, Input } from "native-base";
+import { LinearGradient } from 'expo-linear-gradient';
+
 import { Constants } from "expo";
 import * as Location from "expo-location";
 import * as Permissions from "expo-permissions";
@@ -250,6 +252,10 @@ export default class Map extends React.Component {
             initialRegion={this.state.region}
             region={this.state.region}
           ></MapView>
+          <Footer style={styles.footerStyle}>
+            <Text style={{ color: "white" }}>
+            </Text>
+          </Footer>
         </Container>
       );
     } else {
@@ -293,35 +299,34 @@ export default class Map extends React.Component {
                       longitude: fire.position.lon,
                     }}
                     style={{ backgroundColor: "transparent" }}
-                    // onCalloutPress={() => this.calloutPress(fire.position)} //turn this back on to make the callout expand
+                  // onCalloutPress={() => this.calloutPress(fire.position)} //turn this back on to make the callout expand
                   >
-                    {/* <Image source={require("../assets/clip1.png")} style={{ "height": .0005 * fire.details.size.value, "width": .0005 * fire.details.size.value }} /> */}
                     <Callout
                       style={
                         this.state.isExpanded
                           ? styles.calloutPopupExpanded
                           : styles.calloutPopup
                       }
-                      tooltip // what does this do
+                    // what does this do
                     >
                       {/* <View */}
                       {/* style={this.state.isExpanded ? styles.viewStyle : null} */}
                       {/* > */}
                       <Text style={styles.calloutTitle}>
                         {fire.details !== null &&
-                        fire.details.fire_name !== null
+                          fire.details.fire_name !== null
                           ? fire.details.fire_name
                           : null}
                       </Text>
                       <Text style={styles.calloutDescription}>
                         {fire.details !== null &&
-                        fire.details.percent_contained !== null
+                          fire.details.percent_contained !== null
                           ? `${fire.details.percent_contained}% contained`
                           : "Containment % Unknown"}
                       </Text>
                       <Text style={styles.calloutDescription}>
                         {fire.details !== null &&
-                        fire.details.size.value !== null
+                          fire.details.size.value !== null
                           ? `${fire.details.size.value} acres`
                           : null}
                       </Text>
@@ -340,7 +345,7 @@ export default class Map extends React.Component {
                       <Text style={styles.calloutDescription}>
                         {fire.position.distance.value} miles away from
                         {this.state.currentCity === "" ||
-                        this.state.currentCity === null
+                          this.state.currentCity === null
                           ? " you"
                           : " " + this.state.currentCity}
                       </Text>
@@ -356,9 +361,9 @@ export default class Map extends React.Component {
                 latitude: this.state.region.latitude,
                 longitude: this.state.region.longitude,
               }}
-              // title={"Air Quality"}
-              // onCalloutPress={(e) => this.calloutPress()}
-              // description={`${this.state.airQuality.category} : ${this.state.airQuality.aqi}`}
+            // title={"Air Quality"}
+            // onCalloutPress={(e) => this.calloutPress()}
+            // description={`${this.state.airQuality.category} : ${this.state.airQuality.aqi}`}
             >
               <Callout>
                 <View>
@@ -397,12 +402,12 @@ const styles = StyleSheet.create({
     height: 20,
     position: "absolute",
     zIndex: 100,
-    backgroundColor: "black",
+    backgroundColor: "#FFA03C",
   },
 
   headerStyle: {
-    backgroundColor: "white",
-    height: 40,
+    backgroundColor: '#FAFCFF',
+    // height: 40,
   },
 
   mapView: {
@@ -457,21 +462,30 @@ const styles = StyleSheet.create({
   calloutPopupExpanded: {
     flex: -1,
     position: "relative",
-    height: 180,
-    width: 180,
-    backgroundColor: "#FDCAB8",
-    borderColor: "red",
-    borderWidth: 5,
+    height: "100%",
+    width: "100%",
+    backgroundColor: "white",
+    // opacity: 0.1,
+    // borderColor: "black",""
+    // borderWidth: 2,
     borderRadius: 15,
-    padding: 5,
+    padding: 7,
     margin: 0,
   },
   calloutTitle: {
     fontSize: 17,
     marginBottom: 5,
     fontWeight: "bold",
+    textAlign: "center",
+    padding: 5,
+    backgroundColor: "#FFA03C",
+    // borderRadius: 60,
+    width: "100%"
+
+
   },
   calloutDescription: {
     fontSize: 14,
+    paddingBottom: 2.46
   },
 });
