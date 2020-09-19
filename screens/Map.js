@@ -135,6 +135,9 @@ export default class Map extends React.Component {
           });
       })
       .then(() => {
+        this.setState({ currentCity: this.state.location });
+      })
+      .then(() => {
         this.setState({
           locationEntered: true,
           timeStamp: moment().calendar(),
@@ -197,7 +200,7 @@ export default class Map extends React.Component {
   changeHandler(text) {
     this.setState({
       location: text,
-      currentCity: text,
+      // currentCity: text,
     });
   }
 
@@ -289,6 +292,7 @@ export default class Map extends React.Component {
                       latitude: fire.position.lat,
                       longitude: fire.position.lon,
                     }}
+                    style={{ backgroundColor: "transparent" }}
                     // onCalloutPress={() => this.calloutPress(fire.position)} //turn this back on to make the callout expand
                   >
                     {/* <Image source={require("../assets/clip1.png")} style={{ "height": .0005 * fire.details.size.value, "width": .0005 * fire.details.size.value }} /> */}
@@ -298,7 +302,7 @@ export default class Map extends React.Component {
                           ? styles.calloutPopupExpanded
                           : styles.calloutPopup
                       }
-                      // tooltip // what does this do
+                      tooltip // what does this do
                     >
                       {/* <View */}
                       {/* style={this.state.isExpanded ? styles.viewStyle : null} */}
@@ -313,7 +317,7 @@ export default class Map extends React.Component {
                         {fire.details !== null &&
                         fire.details.percent_contained !== null
                           ? `${fire.details.percent_contained}% contained`
-                          : null}
+                          : "Containment % Unknown"}
                       </Text>
                       <Text style={styles.calloutDescription}>
                         {fire.details !== null &&
@@ -321,28 +325,26 @@ export default class Map extends React.Component {
                           ? `${fire.details.size.value} acres`
                           : null}
                       </Text>
-                      {this.state.isExpanded ? (
-                        <Container>
-                          <Text style={styles.calloutDescription}>
-                            Status: {fire.details.status}
-                          </Text>
-                          <Text style={styles.calloutDescription}>
-                            Started:{" "}
-                            {moment(fire.details.time_discovered).format(
-                              "MMM Do YYYY"
-                            )}
-                          </Text>
-                          <Text style={styles.calloutDescription}>
-                            Type: {fire.details.fire_type}
-                          </Text>
-                          <Text style={styles.calloutDescription}>
-                            {fire.position.distance.value} miles away from
-                            {this.state.currentCity === ""
-                              ? " you"
-                              : this.state.currentCity}
-                          </Text>
-                        </Container>
-                      ) : null}
+                      <Text style={styles.calloutDescription}>
+                        Status: {fire.details.status}
+                      </Text>
+                      <Text style={styles.calloutDescription}>
+                        Started:{" "}
+                        {moment(fire.details.time_discovered).format(
+                          "MMM Do YYYY"
+                        )}
+                      </Text>
+                      <Text style={styles.calloutDescription}>
+                        Type: {fire.details.fire_type}
+                      </Text>
+                      <Text style={styles.calloutDescription}>
+                        {fire.position.distance.value} miles away from
+                        {this.state.currentCity === "" ||
+                        this.state.currentCity === null
+                          ? " you"
+                          : " " + this.state.currentCity}
+                      </Text>
+
                       {/* </View> */}
                     </Callout>
                   </Marker>
@@ -383,7 +385,7 @@ const styles = StyleSheet.create({
   container: {
     //display: "flex",
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "transparent",
     alignItems: "center",
     justifyContent: "center",
     paddingTop: 23,
@@ -457,6 +459,12 @@ const styles = StyleSheet.create({
     position: "relative",
     height: 180,
     width: 180,
+    backgroundColor: "#FDCAB8",
+    borderColor: "red",
+    borderWidth: 5,
+    borderRadius: 15,
+    padding: 5,
+    margin: 0,
   },
   calloutTitle: {
     fontSize: 17,
