@@ -54,10 +54,14 @@ export default class Map extends React.Component {
       permissionGranted: false,
       locationEntered: false,
       timeStamp: "",
+      isExpanded: true, // change to false if you want to dynamically change the size of callout
+      currentRegion: "",
+      currentCity: "",
     };
     // this.getData = this.getData.bind(this);
     this.queryBreezy = this.queryBreezy.bind(this);
     this.getCityCoords = this.getCityCoords.bind(this);
+    this.calloutPress = this.calloutPress.bind(this);
   }
   componentDidMount() {
     this._isMounted = true;
@@ -193,27 +197,29 @@ export default class Map extends React.Component {
   changeHandler(text) {
     this.setState({
       location: text,
+      currentCity: text,
     });
   }
 
-  calloutPress() {
-    console.log("hey!");
+  calloutPress(coordinates) {
+    // e.preventDefault();
+    let currentRegion = {
+      latitude: coordinates.lat,
+      longitude: coordinates.lon,
+      latitudeDelta: 1,
+      longitudeDelta: 1,
+    };
+    this.setState({
+      isExpanded: !this.state.isExpanded,
+      currentRegion: currentRegion,
+    });
   }
 
-  // getInitialState() {
-  //   return {
-  //     region: {
-  //       latitude: 37.78825,
-  //       longitude: -122.4324,
-  //       latitudeDelta: 1,
-  //       longitudeDelta: 1,
-  //     },
-  //   };
-  // }
-
-  // onRegionChange(region) {
-  //   this.setState({ region });
-  // }
+  closeExpansion() {
+    this.setState({
+      isExpanded: false,
+    });
+  }
 
   render() {
     if (!this.state.permissionGranted && !this.state.locationEntered) {
@@ -263,9 +269,14 @@ export default class Map extends React.Component {
           <MapView
             style={styles.container}
             initialRegion={this.state.region}
-            region={this.state.region}
+            region={
+              this.state.currentRegion === ""
+                ? this.state.region
+                : this.state.currentRegion
+            }
             onPress={() => {
               Keyboard.dismiss();
+              // this.closeExpansion(); //turn this back on if you want the callout to be collapsed upon leaving
             }}
           >
             {this.state.fires.map((fire, index) => {
@@ -278,32 +289,61 @@ export default class Map extends React.Component {
                       latitude: fire.position.lat,
                       longitude: fire.position.lon,
                     }}
-                    onCalloutPress={() => this.calloutPress()}
+                    // onCalloutPress={() => this.calloutPress(fire.position)} //turn this back on to make the callout expand
                   >
                     {/* <Image source={require("../assets/clip1.png")} style={{ "height": .0005 * fire.details.size.value, "width": .0005 * fire.details.size.value }} /> */}
                     <Callout
-                    // style={styles.calloutPopup}
+                      style={
+                        this.state.isExpanded
+                          ? styles.calloutPopupExpanded
+                          : styles.calloutPopup
+                      }
+                      // tooltip // what does this do
                     >
-                      <View>
-                        <Text style={styles.calloutTitle}>
-                          {fire.details !== null &&
-                          fire.details.fire_name !== null
-                            ? fire.details.fire_name
-                            : null}
-                        </Text>
-                        <Text style={styles.calloutDescription}>
-                          {fire.details !== null &&
-                          fire.details.percent_contained !== null
-                            ? `${fire.details.percent_contained}% contained`
-                            : null}
-                        </Text>
-                        <Text style={styles.calloutDescription}>
-                          {fire.details !== null &&
-                          fire.details.size.value !== null
-                            ? `${fire.details.size.value} acres`
-                            : null}
-                        </Text>
-                      </View>
+                      {/* <View */}
+                      {/* style={this.state.isExpanded ? styles.viewStyle : null} */}
+                      {/* > */}
+                      <Text style={styles.calloutTitle}>
+                        {fire.details !== null &&
+                        fire.details.fire_name !== null
+                          ? fire.details.fire_name
+                          : null}
+                      </Text>
+                      <Text style={styles.calloutDescription}>
+                        {fire.details !== null &&
+                        fire.details.percent_contained !== null
+                          ? `${fire.details.percent_contained}% contained`
+                          : null}
+                      </Text>
+                      <Text style={styles.calloutDescription}>
+                        {fire.details !== null &&
+                        fire.details.size.value !== null
+                          ? `${fire.details.size.value} acres`
+                          : null}
+                      </Text>
+                      {this.state.isExpanded ? (
+                        <Container>
+                          <Text style={styles.calloutDescription}>
+                            Status: {fire.details.status}
+                          </Text>
+                          <Text style={styles.calloutDescription}>
+                            Started:{" "}
+                            {moment(fire.details.time_discovered).format(
+                              "MMM Do YYYY"
+                            )}
+                          </Text>
+                          <Text style={styles.calloutDescription}>
+                            Type: {fire.details.fire_type}
+                          </Text>
+                          <Text style={styles.calloutDescription}>
+                            {fire.position.distance.value} miles away from
+                            {this.state.currentCity === ""
+                              ? " you"
+                              : this.state.currentCity}
+                          </Text>
+                        </Container>
+                      ) : null}
+                      {/* </View> */}
                     </Callout>
                   </Marker>
                 );
@@ -315,7 +355,7 @@ export default class Map extends React.Component {
                 longitude: this.state.region.longitude,
               }}
               // title={"Air Quality"}
-              onCalloutPress={() => this.calloutPress()}
+              // onCalloutPress={(e) => this.calloutPress()}
               // description={`${this.state.airQuality.category} : ${this.state.airQuality.aqi}`}
             >
               <Callout>
@@ -380,6 +420,10 @@ const styles = StyleSheet.create({
     paddingTop: 23,
     height: "100%",
   },
+  viewStyle: {
+    height: 180,
+    width: 180,
+  },
 
   searchBarStyle: {
     display: "flex",
@@ -403,8 +447,16 @@ const styles = StyleSheet.create({
     color: "white",
   },
   calloutPopup: {
-    height: "auto",
-    width: 100,
+    flex: -1,
+    position: "relative",
+    // height: 180,
+    // width: 180,
+  },
+  calloutPopupExpanded: {
+    flex: -1,
+    position: "relative",
+    height: 180,
+    width: 180,
   },
   calloutTitle: {
     fontSize: 17,
