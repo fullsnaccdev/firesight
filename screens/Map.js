@@ -229,8 +229,8 @@ export default class Map extends React.Component {
   render() {
     if (!this.state.permissionGranted && !this.state.locationEntered) {
       return (
-        <Container>
-          <Header searchBar rounded style={styles.headerStyle}>
+        <Container searchBar rounded style={styles.headerStyle}>
+
             <Item>
               <Icon name="search" />
               <Input
@@ -243,7 +243,7 @@ export default class Map extends React.Component {
                 value={this.state.location}
               />
             </Item>
-          </Header>
+
           <MapView
             onPress={() => {
               Keyboard.dismiss();
@@ -252,16 +252,16 @@ export default class Map extends React.Component {
             initialRegion={this.state.region}
             region={this.state.region}
           ></MapView>
-          <Footer style={styles.footerStyle}>
+          {/* <Footer style={styles.footerStyle}>
             <Text style={{ color: "white" }}>
             </Text>
-          </Footer>
+          </Footer> */}
         </Container>
       );
     } else {
       return (
-        <Container>
-          <Header searchBar rounded style={styles.headerStyle}>
+        <Container searchBar rounded style={styles.headerStyle}>
+
             <Item>
               <Icon name="search" />
               <Input
@@ -274,7 +274,7 @@ export default class Map extends React.Component {
                 clearButtonMode="always"
               />
             </Item>
-          </Header>
+
           <MapView
             style={styles.container}
             initialRegion={this.state.region}
@@ -321,13 +321,13 @@ export default class Map extends React.Component {
                       <Text style={styles.calloutDescription}>
                         {fire.details !== null &&
                           fire.details.percent_contained !== null
-                          ? `${fire.details.percent_contained}% contained`
+                          ? `${fire.details.percent_contained}% Contained`
                           : "Containment % Unknown"}
                       </Text>
                       <Text style={styles.calloutDescription}>
                         {fire.details !== null &&
                           fire.details.size.value !== null
-                          ? `${fire.details.size.value} acres`
+                          ? `${fire.details.size.value} Acres`
                           : null}
                       </Text>
                       <Text style={styles.calloutDescription}>
@@ -343,7 +343,7 @@ export default class Map extends React.Component {
                         Type: {fire.details.fire_type}
                       </Text>
                       <Text style={styles.calloutDescription}>
-                        {fire.position.distance.value} miles away from
+                        {fire.position.distance.value} Miles away from
                         {this.state.currentCity === "" ||
                           this.state.currentCity === null
                           ? " you"
@@ -375,11 +375,11 @@ export default class Map extends React.Component {
               </Callout>
             </Marker>
           </MapView>
-          <Footer style={styles.footerStyle}>
+          {/* <Footer style={styles.footerStyle}>
             <Text style={{ color: "white" }}>
               Updated {this.state.timeStamp}
             </Text>
-          </Footer>
+          </Footer> */}
         </Container>
       );
     }
@@ -407,6 +407,8 @@ const styles = StyleSheet.create({
 
   headerStyle: {
     backgroundColor: '#FAFCFF',
+    borderRadius: 15,
+    padding: 5,
     // height: 40,
   },
 

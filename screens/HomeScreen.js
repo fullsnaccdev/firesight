@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Button, TouchableOpacity, SafeAreaView, Image } from "react-native";
+import { StyleSheet, Text, View, Button, Fonts, TouchableOpacity, SafeAreaView, Image } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { LinearGradient } from 'expo-linear-gradient';
@@ -29,6 +29,18 @@ class HomeScreen extends React.Component {
     };
   }
 
+  checkIfLoggedIn = () => {
+    firebase.auth().onAuthStateChanged(
+      function(user) {
+        if (user) {
+          this.props.navigation.navigate('DashboardScreen');
+        } else {
+          this.props.navigation.navigate('LoginScreen');
+        }
+      }
+    )
+  }
+
   render() {
     return (
       <View
@@ -50,10 +62,17 @@ class HomeScreen extends React.Component {
             height: 500,
           }}
         />
-        <Image source={require("../assets/logo_transparent.png")} style={styles.logoStyle} />
+        <Image source={require("../assets/customLogo.png")} style={styles.logoStyle} />
+        <View>
+        <Button
+        title="Log In/Sign Up"
+        onPress={() => this.props.navigation.navigate("LoginScreen")}
+        />
+      </View>
         <Button
           title="Continue as Guest"
           color='#581915'
+          fontFamily='Montserrat'
           onPress={() => this.props.navigation.navigate("Map")}
         />
 

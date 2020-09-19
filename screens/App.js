@@ -11,15 +11,17 @@ import axios from "axios";
 import breezy_key from "../breezy_key.js";
 import Map from "./Map.js";
 import HomeScreen from "./HomeScreen.js";
+import LoginScreen from './LoginScreen.js';
 
 const Stack = createStackNavigator();
 
 function App() {
   return (
     <NavigationContainer>
-        <Stack.Navigator initialRouteName="Home" style={{backgroundColor: 'red'}}>
-          <Stack.Screen name="Firesight" component={HomeScreen} />
+        <Stack.Navigator initialRouteName="Home">
+          <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="Map" component={Map} />
+          <Stack.Screen name="LoginScreen" component={LoginScreen} />
         </Stack.Navigator>
     </NavigationContainer>
   );
