@@ -25,7 +25,7 @@ import * as firebase from "firebase";
 // import "firebase/firestore";
 import firekey from "../firekey2.js";
 import axios from "axios";
-import breezy_key from "../breezy_key.js";
+import breezy_key from "../breezy.js"; // breezy_key.js other api key
 import google_key from "../google_key2.js";
 
 const Stack = createStackNavigator();
@@ -131,10 +131,10 @@ export default class Map extends React.Component {
           .then((results) => {
             if (this._isMounted) {
               this.setState({
-                airQuality: results.data.data.indexes.usa_epa,
+                airQuality: results.data.data, // results.data.data.indexes.usa_epa
               });
             }
-          });
+          })
       })
       .then(() => {
         this.setState({ currentCity: this.state.location });
@@ -372,7 +372,18 @@ export default class Map extends React.Component {
                   <Text style={styles.calloutTitle}>{"Air Quality"}</Text>
                   <Text
                     style={styles.calloutDescription}
-                  >{`AQI: ${this.state.airQuality.aqi}\n${this.state.airQuality.category}`}</Text>
+                  >
+                    { this.state.airQuality.indexes && this.state.airQuality.indexes.usa_epa && (
+                      `AQI: ${this.state.airQuality.indexes.usa_epa.aqi}\n${this.state.airQuality.indexes.usa_epa.category}`
+                    )}
+                  </Text>
+                  <Text
+                    style={styles.calloutDescription}
+                  >{`Updated: ${moment(this.state.airQuality.datetime).calendar()}`}
+                  </Text>
+                  <Button 
+                    title='Add to Favorites'
+                  />
                 </View>
               </Callout>
             </Marker>
