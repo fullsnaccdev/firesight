@@ -63,24 +63,26 @@ class HomeScreen extends React.Component {
           }}
         />
         <Image source={require("../assets/customLogo.png")} style={styles.logoStyle} />
-        <View>
+        <View style={{ justifyContent: "center" }}>
         <Button
         color='#581915'
         title="Log In"
         onPress={() => this.props.navigation.navigate("Log In")}
         />
-      </View>
         <Button
           title="Continue as Guest"
           color='#581915'
           fontFamily='Montserrat'
           onPress={() => this.props.navigation.navigate("Map")}
-        />
+          />
+          </View>
+        <View style={{ flex: 1, justifyContent: "flex-end", marginBottom: 60 }}>
         <Button
-        color='#581915'
+        color='grey'
         title="Sign Up"
         onPress={() => this.props.navigation.navigate("Sign Up")}
         />
+        </View>
       </View>
     );
   }
@@ -90,7 +92,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    //justifyContent: 'center',
   },
   buttonStyle: {
     color: 'brown',
@@ -98,8 +100,10 @@ const styles = StyleSheet.create({
     borderRadius: 15
   },
   logoStyle: {
-    height: '30%',
-    width: '90%'
+    height: 450,
+    width: 450,
+    flex: 1,
+    marginTop: 180,
   }
 })
 

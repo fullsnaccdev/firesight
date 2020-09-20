@@ -7,10 +7,7 @@ import { Container, Content, Header, Form, Input, Item, Button, Label, StyleProv
 import firebaseConfig from '../firekey2.js';
 import { LinearGradient } from 'expo-linear-gradient';
 
-
-
-
-class LoginScreen extends React.Component {
+class SignUpScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -28,7 +25,17 @@ class LoginScreen extends React.Component {
         alert("Please enter at least 6 characters")
         return;
       }
-      firebase.auth().createUserWithEmailAndPassword(email, password)
+      firebase.auth().createUserWithEmailAndPassword(email, password).then((result) => {
+        firebase.database().ref('/users/' + result.user.uid)
+                .set({
+                  email: email,
+                  created_at: Date.now()
+                })
+
+        alert('Welcome to Firesight!')
+        this.props.navigation.navigate('Map')
+      })
+
     }
 
     catch(error) {
@@ -36,9 +43,6 @@ class LoginScreen extends React.Component {
     }
   }
 
-  loginUser = (loginEmail, loginPassword) => {
-
-  }
 
   isSigningUp() {
     this.setState({
@@ -109,7 +113,6 @@ class LoginScreen extends React.Component {
     try {
       const result = await Google.logInAsync({
         // androidClientId: YOUR_CLIENT_ID_HERE,
-
         behavior: 'web',
         iosClientId: iosClientId,
         scopes: ['profile', 'email'],
@@ -129,26 +132,16 @@ class LoginScreen extends React.Component {
   }
 
   render() {
-    console.log(this.state)
-    if (this.state.firstTimeUser) {
       return (
         <Container style={styles.container}>
-          <LinearGradient
-          // Background Linear Gradient
-          colors={['white', 'transparent']}
-          // rgba(0,0,0,0.8)
-          style={{
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            top: 0,
-            height: 500,
-          }}
-        />
           <Form>
             <Item floatingLabel>
-              <Label>Email</Label>
+              <Label
+              style={styles.buttonText}
+
+              >Email</Label>
               <Input
+              style={styles.inputBox}
                 autoCorrect={false}
                 autoCapitalize="none"
                 onChangeText={(signUpEmail) => {
@@ -157,8 +150,12 @@ class LoginScreen extends React.Component {
               />
             </Item>
             <Item floatingLabel>
-              <Label>Password</Label>
+              <Label
+              style={styles.buttonText}
+
+              >Password</Label>
               <Input
+              style={styles.inputBox}
                 secureTextEntry={true}
                 autoCorrect={false}
                 autoCapitalize="none"
@@ -167,87 +164,158 @@ class LoginScreen extends React.Component {
                 }}
               />
             </Item>
-            <Button style={{ marginTop: 10 }}
+            <Button
+            style={styles.button}
               full
               rounded
               color='#581915'
               onPress={() => this.signUpUser(this.state.signUpEmail, this.state.signUpPassword)}
             >
-              <Text>Sign Up</Text>
+              <Text
+              style={styles.buttonText}
+
+              >Sign Up</Text>
             </Button>
+            <Button
+          style={styles.googleButton}
+          onPress={() => { this.signInWithGoogleAsync() }}
+          full
+          bordered
+        >
+          <Text
+          style={styles.buttonText}
+          >Sign Up with Google</Text>
+        </Button>
           </Form>
         </Container>
       )
-    } else {
-      return (
-        <Container style={styles.container}>
-          <Form>
-            <Item floatingLabel>
-              <Label>Email</Label>
-              <Input
-                autoCorrect={false}
-                autoCapitalize="none"
-                onChangeText={(loginEmail) => {
-                  this.setState({loginEmail});
-                }}
-              />
-            </Item>
-            <Item floatingLabel>
-              <Label>Password</Label>
-              <Input
-                secureTextEntry={true}
-                autoCorrect={false}
-                autoCapitalize="none"
-                onChangeText={(loginPassword) => {
-                  this.setState({loginPassword});
-                }}
-              />
-            </Item>
-            <Button style={{ marginTop: 10 }}
-              full
-              bordered
-              success
-              onPress = { () => this.loginUser(this.state.loginEmail, this.state.loginPassword)}
-            >
-              <Text>Login</Text>
-            </Button>
-          </Form>
-          <Button
-            onPress={() => { this.signInWithGoogleAsync() }}
-            full
-            bordered
-            success
-          >
-            <Text style={{padding: 10, alignSelf: 'center'}}>Login with Google</Text>
-          </Button>
-          {/* <StyleProvider style={customTheme}>
-            <Button customStyleProp onPress={() => { this.signInWithGoogleAsync() }} >
-              <Text>Login with Google</Text>
-            </Button>
-          </StyleProvider> */}
-          {/* <TouchableOpacity
-            onPress={() => { this.isSigningUp() }}
-          >
-            <Text style={{padding: 10, alignSelf: 'center' }}>
-              Sign Up
-            </Text>
-          </TouchableOpacity> */}
+    // } else {
+      // return (
+      //   <Container style={styles.container}>
+      //     <Form>
+      //       <Item floatingLabel>
+      //         <Label
+              // style={styles.buttonText}
+      //         >Email</Label>
+      //         <Input
+              // style={styles.inputBox}
 
-        </Container>
-      );
+      //           autoCorrect={false}
+      //           autoCapitalize="none"
+      //           onChangeText={(loginEmail) => {
+      //             this.setState({loginEmail});
+      //           }}
+      //         />
+      //       </Item>
+      //       <Item floatingLabel>
+      //         <Label
+      //         style={styles.buttonText}
+      //         >Password</Label>
+      //         <Input
+      //         style={styles.inputBox}
+      //           secureTextEntry={true}
+      //           autoCorrect={false}
+      //           autoCapitalize="none"
+      //           onChangeText={(loginPassword) => {
+      //             this.setState({loginPassword});
+      //           }}
+      //         />
+      //       </Item>
+      //       <Button
+            // style={styles.button}
+
+      //         full
+      //         bordered
+      //         success
+      //         onPress = { () => this.loginUser(this.state.loginEmail, this.state.loginPassword)}
+      //       >
+      //         <Text
+      //         style={styles.buttonText}
+      //         >Login</Text>
+      //       </Button>
+      //     </Form>
+      //     <Button
+      //       onPress={() => { this.signInWithGoogleAsync() }}
+      //       full
+      //       bordered
+      //       success
+      //       style={styles.googleButton}
+
+      //     >
+      //       <Text style={styles.buttonText}>Login with Google</Text>
+      //     </Button>
+      //     {/* <StyleProvider style={customTheme}>
+      //       <Button customStyleProp onPress={() => { this.signInWithGoogleAsync() }} >
+      //         <Text>Login with Google</Text>
+      //       </Button>
+      //     </StyleProvider> */}
+      //     {/* <TouchableOpacity
+      //       onPress={() => { this.isSigningUp() }}
+      //     >
+      //       <Text style={{padding: 10, alignSelf: 'center' }}>
+      //         Sign Up
+      //       </Text>
+      //     </TouchableOpacity> */}
+
+      //   </Container>
+      // );
     }
-  }
 }
 
-export default LoginScreen;
+export default SignUpScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     padding: 10,
-    backgroundColor: '#FFA03C',
+    backgroundColor: '#fff',
   },
+  inputBox: {
+    width: '85%',
+    margin: 10,
+    padding: 15,
+    fontSize: 16,
+    // borderColor: '#581915',
+    // borderBottomWidth: 1,
+    textAlign: 'left'
+  },
+  googleButton: {
+    marginTop: 50,
+    // marginBottom: 5,
+    // paddingVertical: 5,
+    justifyContent: 'center',
+    textAlign: 'center',
+    alignSelf: 'center',
+    backgroundColor: '#fff',
+    borderColor: '#000000',
+    // borderWidth: 1,
+    borderRadius: 5,
+    width: '70%'
+
+  },
+  button: {
+    marginTop: 50,
+    // marginBottom: 5,
+    // paddingVertical: 5,
+    justifyContent: 'center',
+    textAlign: 'center',
+    alignSelf: 'center',
+    backgroundColor: '#FFB236',
+    borderColor: '#000000',
+    // borderWidth: 1,
+    borderRadius: 5,
+    width: '70%'
+  },
+  buttonText: {
+    fontSize: 20,
+    // fontWeight: 'bold',
+    color: '#581915',
+    textAlign: 'center'
+  },
+  buttonSignup: {
+    fontSize: 12,
+  }
 })
 
 // const customTheme = {

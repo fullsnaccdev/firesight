@@ -59,6 +59,7 @@ export default class Map extends React.Component {
       isExpanded: true, // change to false if you want to dynamically change the size of callout
       currentRegion: "",
       currentCity: "",
+      currentUser: "",
       isSearching: false,
     };
     // this.getData = this.getData.bind(this);
@@ -69,11 +70,20 @@ export default class Map extends React.Component {
   componentDidMount() {
     this._isMounted = true;
     this.findCurrentLocation();
+    if (this.props.route.params.uid) {
+      this.setState({
+        currentUser: this.props.route.params.uid
+      })
+    }
     // this.getData();
   }
 
   // updateData() {
   //   setInterval(this.queryBreezy, 10000)
+  // }
+
+  // addCityToFavorites() {
+
   // }
 
   findCurrentLocation() {
@@ -233,11 +243,30 @@ export default class Map extends React.Component {
     })
   }
 
+  styleRenderer() {
+    if (this.state.airQuality.indexes && this.state.airQuality.indexes.usa_epa) {
+      return (
+        this.state.airQuality.indexes.usa_epa.aqi <= 50
+        ? styles.good
+        : this.state.airQuality.indexes.usa_epa.aqi <= 100
+        ? styles.moderate
+        : this.state.airQuality.indexes.usa_epa.aqi <= 150
+        ? styles.unhealthy1
+        : this.state.airQuality.indexes.usa_epa.aqi <= 200
+        ? styles.unhealthy2
+        : this.state.airQuality.indexes.usa_epa.aqi <= 300
+        ? styles.unhealthy3
+        : styles.hazardous
+      )
+    }
+  }
+
   render() {
+    console.log('current user: ', this.state.currentUser)
     if (!this.state.permissionGranted && !this.state.locationEntered) {
       return (
         <Container searchBar rounded style={styles.headerStyle}>
-            {this.state.isSearching ? 
+            {this.state.isSearching ?
             (<Item>
               <Icon name="search" />
               <Input
@@ -250,7 +279,7 @@ export default class Map extends React.Component {
                 value={this.state.location}
               />
             </Item>)
-            : 
+            :
             (<Item
                 style={{flexDirection: 'row', justifyContent: 'space-around'}}
             >
@@ -289,7 +318,7 @@ export default class Map extends React.Component {
     } else {
       return (
         <Container searchBar rounded style={styles.headerStyle}>
-          {this.state.isSearching ? 
+          {this.state.isSearching ?
             (<Item>
               <Icon name="search" />
               <Input
@@ -322,7 +351,7 @@ export default class Map extends React.Component {
 
             />
           </Item>)}
-          
+
           <MapView
             style={styles.container}
             initialRegion={this.state.region}
@@ -367,7 +396,7 @@ export default class Map extends React.Component {
                           ? fire.details.fire_name
                           : null}
                       </Text>
-                      <Text style={styles.calloutDescription}>
+                      <Text >
                         {fire.details !== null &&
                           fire.details.percent_contained !== null
                           ? `${fire.details.percent_contained}% Contained`
@@ -398,7 +427,7 @@ export default class Map extends React.Component {
                           ? " you"
                           : " " + this.state.currentCity}
                       </Text>
-                      <Text style={styles.calloutDescription}>
+                      <Text style={{fontSize: 14, paddingBottom: 2.46, marginTop: 6, textAlign: 'center', fontStyle: 'italic'}}>
                         Updated: {moment(fire.update_time).calendar()}
                       </Text>
                       {/* </View> */}
@@ -418,19 +447,24 @@ export default class Map extends React.Component {
             >
               <Callout>
                 <View>
-                  <Text style={styles.calloutTitle}>{"Air Quality"}</Text>
-                  <Text
-                    style={styles.calloutDescription}
-                  >
+                  <Text style={
+                      this.styleRenderer()
+                    }>
+
+                      { this.state.airQuality.indexes && this.state.airQuality.indexes.usa_epa && (
+                      `${this.state.airQuality.indexes.usa_epa.category}`)}
+                    </Text>
+                  <Text style={{fontSize: 19, textAlign: "center", marginTop: 3, marginBottom: 3}}>
                     { this.state.airQuality.indexes && this.state.airQuality.indexes.usa_epa && (
-                      `AQI: ${this.state.airQuality.indexes.usa_epa.aqi}\n${this.state.airQuality.indexes.usa_epa.category}`
+                      `AQI: ${this.state.airQuality.indexes.usa_epa.aqi}`
                     )}
                   </Text>
                   <Text
-                    style={styles.calloutDescription}
+                    style={{fontSize: 14, paddingBottom: 2.46, marginTop: 6, textAlign: 'center', fontStyle: 'italic'}}
                   >{`Updated: ${moment(this.state.airQuality.datetime).calendar()}`}
                   </Text>
-                  <Button 
+                  <Button
+                    style={styles.button}
                     title='Add to Favorites'
                   />
                 </View>
@@ -470,7 +504,7 @@ const styles = StyleSheet.create({
   headerStyle: {
     backgroundColor: '#FAFCFF',
     borderRadius: 15,
-    padding: 5,
+    // padding: 5,
     // height: 40,
   },
 
@@ -499,6 +533,26 @@ const styles = StyleSheet.create({
   searchBarStyle: {
     display: "flex",
     flex: 1,
+  },
+  button: {
+    marginTop: 50,
+    // marginBottom: 5,
+    // paddingVertical: 5,
+    justifyContent: 'center',
+    textAlign: 'center',
+    alignSelf: 'center',
+    backgroundColor: '#FFB236',
+    borderColor: '#000000',
+    // borderWidth: 1,
+    borderRadius: 5,
+    width: '70%',
+    padding:30
+  },
+  buttonText: {
+    fontSize: 20,
+    // fontWeight: 'bold',
+    color: '#581915',
+    textAlign: 'center'
   },
 
   input: {
@@ -545,11 +599,74 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFA03C",
     // borderRadius: 60,
     width: "100%"
-
-
+  },
+  good: {
+    fontSize: 19,
+    marginBottom: 5,
+    fontWeight: "bold",
+    textAlign: "center",
+    padding: 5,
+    backgroundColor: "#6ee043",
+    // borderRadius: 60,
+    width: "100%",
+  },
+  moderate: {
+    fontSize: 19,
+    marginBottom: 5,
+    fontWeight: "bold",
+    textAlign: "center",
+    padding: 5,
+    backgroundColor: "yellow",
+    // borderRadius: 60,
+    width: "100%",
+  },
+  unhealthy1: {
+    fontSize: 19,
+    marginBottom: 5,
+    fontWeight: "bold",
+    textAlign: "center",
+    padding: 5,
+    backgroundColor: "#FFA03C",
+    // borderRadius: 60,
+    width: "100%",
+  },
+  unhealthy2: {
+    color: "white",
+    fontSize: 19,
+    marginBottom: 5,
+    fontWeight: "bold",
+    textAlign: "center",
+    padding: 5,
+    backgroundColor: "red",
+    // borderRadius: 60,
+    width: "100%",
+  },
+  unhealthy3: {
+    color: "white",
+    fontSize: 19,
+    marginBottom: 5,
+    fontWeight: "bold",
+    textAlign: "center",
+    padding: 5,
+    backgroundColor: "#8a1b4b",
+    // borderRadius: 60,
+    width: "100%",
+  },
+  hazardous: {
+    color: "white",
+    fontSize: 19,
+    marginBottom: 5,
+    fontWeight: "bold",
+    textAlign: "center",
+    padding: 5,
+    backgroundColor: "#711425",
+    // borderRadius: 60,
+    width: "100%",
   },
   calloutDescription: {
     fontSize: 14,
-    paddingBottom: 2.46
+    paddingBottom: 2.46,
+    marginTop: 3,
+    //textAlign: "center"
   },
 });

@@ -13,15 +13,24 @@ class Favorites extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-    
+
         };
 
+    }
+
+    componentDidMount() {
+        // this.getCities();
+    }
+
+    getCities() {
+        // Josh do your magic and bring back the data from the DB
+        // then save those results to state
     }
 
     render() {
         return(
             <Container>
-                
+                {/* {this.state.cities.map(() => ())} */}
             </Container>
         )
     }

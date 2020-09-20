@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, Fonts, TouchableOpacity, SafeAreaView, Image } from "react-native";
 import * as Google from 'expo-google-app-auth';
+// import * as GoogleSignIn from 'expo-google-sign-in';
 import iosClientId from '../iosClientId.js';
 import * as firebase from "firebase";
 import { Container, Content, Header, Form, Input, Item, Button, Label, StyleProvider } from 'native-base';
@@ -12,39 +13,30 @@ class LoginScreen extends React.Component {
     super(props);
     this.state = {
       firstTimeUser: false,
-      signUpEmail: '',
-      signUpPassword: '',
       loginEmail: '',
       loginPassword: '',
-    }
-  }
-
-  signUpUser = (email, password) => {
-    try {
-      if (this.state.signUpPassword.length < 6) {
-        alert("Please enter at least 6 characters")
-        return;
-      }
-      firebase.auth().createUserWithEmailAndPassword(email, password)
-    }
-
-    catch (error) {
-      console.log(error.toString());
+      currentUser: ''
     }
   }
 
   loginUser = (loginEmail, loginPassword) => {
     try {
       firebase.auth().signInWithEmailAndPassword(loginEmail, loginPassword)
-        .then((user) =>
-          console.log(user))
-      this.props.navigation.navigate('Map')
-
+        .then((result) => {
+          console.log(result.user.uid)
+          this.setState({
+            currentUser: result.user.uid
+          })
+          return result.user.uid
+        })
+        .then((uid) => {
+          alert('Welcome back!')
+          this.props.navigation.navigate('Map', {uid: uid})
+        })
     }
-
     catch (error) {
+      alert(error)
       console.log(error.toString())
-      alert('Oooooooooooooooooooops! You did it AGAIN!')
     }
   }
 
@@ -136,125 +128,73 @@ class LoginScreen extends React.Component {
   }
 
   render() {
-    console.log(this.state)
-    if (this.state.firstTimeUser) {
-      return (
-        <Container style={styles.container}>
-          <LinearGradient
-            // Background Linear Gradient
-            colors={['white', 'transparent']}
-            // rgba(0,0,0,0.8)
-            style={{
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              top: 0,
-              height: 500,
-            }}
-          />
-          <Form>
-            <Item floatingLabel>
-              <Label>Email</Label>
-              <Input
-                autoCorrect={false}
-                autoCapitalize="none"
-                onChangeText={(signUpEmail) => {
-                  this.setState({ signUpEmail });
-                }}
-              />
-            </Item>
-            <Item floatingLabel>
-              <Label>Password</Label>
-              <Input
-                secureTextEntry={true}
-                autoCorrect={false}
-                autoCapitalize="none"
-                onChangeText={(signUpPassword) => {
-                  this.setState({ signUpPassword });
-                }}
-              />
-            </Item>
-            <Button style={{ marginTop: 10 }}
-              full
-              rounded
-              success
-              onPress={() => this.signUpUser(this.state.signUpEmail, this.state.signUpPassword)}
-            >
-              <Text>Sign Up</Text>
-            </Button>
-          </Form>
-        </Container>
-      )
-    } else {
-      return (
-        <Container style={styles.container}>
-          <LinearGradient
-            // Background Linear Gradient
-            colors={['white', 'transparent']}
-            // rgba(0,0,0,0.8)
-            style={{
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              top: 0,
-              height: 500,
-            }}
-          />
-          <Form>
-            <Item floatingLabel>
-              <Label>Email</Label>
-              <Input
-                autoCorrect={false}
-                autoCapitalize="none"
-                onChangeText={(loginEmail) => {
-                  this.setState({ loginEmail });
-                }}
-              />
-            </Item>
-            <Item floatingLabel>
-              <Label>Password</Label>
-              <Input
-                secureTextEntry={true}
-                autoCorrect={false}
-                autoCapitalize="none"
-                onChangeText={(loginPassword) => {
-                  this.setState({ loginPassword });
-                }}
-              />
-            </Item>
-            <Button style={{ marginTop: 10 }}
-              full
-              bordered
-              success
-              onPress={() => this.loginUser(this.state.loginEmail, this.state.loginPassword)}
-            >
-              <Text>Login</Text>
-            </Button>
-          </Form>
+    return (
+      <View style={styles.container}>
+        {/* <LinearGradient
+          // Background Linear Gradient
+          colors={['white', 'transparent']}
+          // rgba(0,0,0,0.8)
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            top: 0,
+            bottom: 10,
+            height: 200,
+          }}
+        /> */}
+        <Form>
+          <Item floatingLabel>
+            <Label
+              style={styles.buttonText}
+            >Email</Label>
+            <Input
+              style={styles.inputBox}
+              autoCorrect={false}
+              autoCapitalize="none"
+              onChangeText={(loginEmail) => {
+                this.setState({ loginEmail });
+              }}
+            />
+          </Item>
+          <Item floatingLabel>
+            <Label
+              style={styles.buttonText}
+            >Password</Label>
+            <Input
+              style={styles.inputBox}
+              secureTextEntry={true}
+              autoCorrect={false}
+              autoCapitalize="none"
+              onChangeText={(loginPassword) => {
+                this.setState({ loginPassword });
+              }}
+            />
+          </Item>
           <Button
-            onPress={() => { this.signInWithGoogleAsync() }}
+            style={styles.button}
             full
             bordered
             success
+            onPress={() => this.loginUser(this.state.loginEmail, this.state.loginPassword)}
           >
-            <Text style={{ padding: 10, alignSelf: 'center' }}>Login with Google</Text>
+            <Text style={styles.buttonText}>
+              Login
+              </Text>
           </Button>
-          {/* <StyleProvider style={customTheme}>
-            <Button customStyleProp onPress={() => { this.signInWithGoogleAsync() }} >
-              <Text>Login with Google</Text>
-            </Button>
-          </StyleProvider> */}
-          {/* <TouchableOpacity
-            onPress={() => { this.isSigningUp() }}
-          >
-            <Text style={{padding: 10, alignSelf: 'center' }}>
-              Sign Up
-            </Text>
-          </TouchableOpacity> */}
-
-        </Container>
-      );
-    }
+        </Form>
+        <Button
+          style={styles.googleButton}
+          onPress={() => { this.signInWithGoogleAsync() }}
+          full
+          bordered
+        >
+          <Text
+          style={styles.buttonText}
+          >Login with Google</Text>
+        </Button>
+      </View>
+    );
   }
 }
 
@@ -265,8 +205,53 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 10,
-    backgroundColor: '#FFA03C',
+    backgroundColor: '#fff',
   },
+  inputBox: {
+    width: '85%',
+    margin: 10,
+    padding: 15,
+    fontSize: 16,
+    // borderColor: '#581915',
+    // borderBottomWidth: 1,
+    textAlign: 'left'
+  },
+  googleButton: {
+    marginTop: 50,
+    // marginBottom: 5,
+    // paddingVertical: 5,
+    justifyContent: 'center',
+    textAlign: 'center',
+    alignSelf: 'center',
+    backgroundColor: '#fff',
+    borderColor: '#000000',
+    // borderWidth: 1,
+    borderRadius: 5,
+    width: '70%'
+
+  },
+  button: {
+    marginTop: 50,
+    // marginBottom: 5,
+    // paddingVertical: 5,
+    justifyContent: 'center',
+    textAlign: 'center',
+    alignSelf: 'center',
+    backgroundColor: '#FFB236',
+    borderColor: '#000000',
+    // borderWidth: 1,
+    borderRadius: 5,
+    width: '70%'
+  },
+  buttonText: {
+    fontSize: 20,
+    // fontWeight: 'bold',
+    color: '#581915',
+    textAlign: 'center'
+  },
+  buttonSignup: {
+    fontSize: 12,
+  }
 })
 
 // const customTheme = {
