@@ -19,7 +19,7 @@ import MapView from "react-native-maps";
 import * as firebase from "firebase";
 import "firebase/firestore";
 import axios from "axios";
-import breezy_key from "../breezy_key.js";
+import breezy_key from "../breezy.js"; // breezy_key.js
 import Map from "./Map.js";
 
 class HomeScreen extends React.Component {

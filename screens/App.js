@@ -8,11 +8,12 @@ import MapView from "react-native-maps";
 import * as firebase from "firebase";
 import "firebase/firestore";
 import axios from "axios";
-import breezy_key from "../breezy_key.js";
+import breezy_key from "../breezy.js"; // breezy_key.js
 import Map from "./Map.js";
 import HomeScreen from "./HomeScreen.js";
 import LoginScreen from './LoginScreen.js';
 import SignUpScreen from './SignUpScreen.js';
+import Favorites from './Favorites.js';
 
 const Stack = createStackNavigator();
 
@@ -24,6 +25,7 @@ function App() {
           <Stack.Screen name="Map" component={Map} />
           <Stack.Screen name="Log In" component={LoginScreen} />
           <Stack.Screen name="Sign Up" component={SignUpScreen} />
+          <Stack.Screen name="Favorites" component={Favorites} />
         </Stack.Navigator>
     </NavigationContainer>
   );
