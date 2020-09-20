@@ -59,6 +59,7 @@ export default class Map extends React.Component {
       isExpanded: true, // change to false if you want to dynamically change the size of callout
       currentRegion: "",
       currentCity: "",
+      isSearching: false,
     };
     // this.getData = this.getData.bind(this);
     this.queryBreezy = this.queryBreezy.bind(this);
@@ -226,27 +227,54 @@ export default class Map extends React.Component {
     });
   }
 
+  searchToggle(input) {
+    this.setState({
+      isSearching: input
+    })
+  }
+
   render() {
     if (!this.state.permissionGranted && !this.state.locationEntered) {
       return (
         <Container searchBar rounded style={styles.headerStyle}>
-
-            <Item>
+            {this.state.isSearching ? 
+            (<Item>
               <Icon name="search" />
               <Input
                 placeholder="Enter Location"
                 onChangeText={(text) => {
                   this.changeHandler(text);
                 }}
-                onSubmitEditing={() => this.getCityCoords()}
+                onSubmitEditing={() => {this.getCityCoords(); this.searchToggle(false)}}
                 clearButtonMode="always"
                 value={this.state.location}
               />
-            </Item>
+            </Item>)
+            : 
+            (<Item
+                style={{flexDirection: 'row', justifyContent: 'space-around'}}
+            >
+              <Button
+                title='Search'
+                onPress={() => this.searchToggle(true)}
+                style={{padding: 5}}
+              />
+              <Button
+                title='Favorites'
+                style={{padding: 5}}
+                onPress={() => this.props.navigation.navigate('Favorites')}
+              />
+              <Button
+                title='Profile'
+                style={{padding: 5}}
 
+              />
+            </Item>)
+            }
           <MapView
             onPress={() => {
               Keyboard.dismiss();
+              this.searchToggle(false);
             }}
             style={styles.container}
             initialRegion={this.state.region}
@@ -261,8 +289,8 @@ export default class Map extends React.Component {
     } else {
       return (
         <Container searchBar rounded style={styles.headerStyle}>
-
-            <Item>
+          {this.state.isSearching ? 
+            (<Item>
               <Icon name="search" />
               <Input
                 placeholder="Enter Location"
@@ -273,8 +301,28 @@ export default class Map extends React.Component {
                 onSubmitEditing={() => this.getCityCoords()}
                 clearButtonMode="always"
               />
-            </Item>
+            </Item>)
+          :
+          (<Item
+            style={{flexDirection: 'row', justifyContent: 'space-around'}}
+          >
+            <Button
+              title='Search'
+              onPress={() => this.searchToggle(true)}
+              style={{padding: 5}}
+            />
+            <Button
+              title='Favorites'
+              style={{padding: 5}}
+              onPress={() => this.props.navigation.navigate('Favorites')}
+            />
+            <Button
+              title='Profile'
+              style={{padding: 5}}
 
+            />
+          </Item>)}
+          
           <MapView
             style={styles.container}
             initialRegion={this.state.region}
@@ -285,6 +333,7 @@ export default class Map extends React.Component {
             }
             onPress={() => {
               Keyboard.dismiss();
+              this.searchToggle(false)
               // this.closeExpansion(); //turn this back on if you want the callout to be collapsed upon leaving
             }}
           >

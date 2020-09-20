@@ -21,7 +21,7 @@ class Favorites extends React.Component {
     render() {
         return(
             <Container>
-
+                
             </Container>
         )
     }
