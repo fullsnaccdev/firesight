@@ -7,11 +7,14 @@ import { Container, Content, Header, Form, Input, Item, Button, Label, StyleProv
 import firebaseConfig from '../firekey2.js';
 import { LinearGradient } from 'expo-linear-gradient';
 
+
+
+
 class LoginScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      firstTimeUser: false,
+      firstTimeUser: true,
       signUpEmail: '',
       signUpPassword: '',
       loginEmail: '',
@@ -28,24 +31,13 @@ class LoginScreen extends React.Component {
       firebase.auth().createUserWithEmailAndPassword(email, password)
     }
 
-    catch (error) {
+    catch(error) {
       console.log(error.toString());
     }
   }
 
   loginUser = (loginEmail, loginPassword) => {
-    try {
-      firebase.auth().signInWithEmailAndPassword(loginEmail, loginPassword)
-        .then((user) =>
-          console.log(user))
-      this.props.navigation.navigate('Map')
 
-    }
-
-    catch (error) {
-      console.log(error.toString())
-      alert('Oooooooooooooooooooops! You did it AGAIN!')
-    }
   }
 
   isSigningUp() {
@@ -117,6 +109,7 @@ class LoginScreen extends React.Component {
     try {
       const result = await Google.logInAsync({
         // androidClientId: YOUR_CLIENT_ID_HERE,
+
         behavior: 'web',
         iosClientId: iosClientId,
         scopes: ['profile', 'email'],
@@ -141,17 +134,17 @@ class LoginScreen extends React.Component {
       return (
         <Container style={styles.container}>
           <LinearGradient
-            // Background Linear Gradient
-            colors={['white', 'transparent']}
-            // rgba(0,0,0,0.8)
-            style={{
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              top: 0,
-              height: 500,
-            }}
-          />
+          // Background Linear Gradient
+          colors={['white', 'transparent']}
+          // rgba(0,0,0,0.8)
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            top: 0,
+            height: 500,
+          }}
+        />
           <Form>
             <Item floatingLabel>
               <Label>Email</Label>
@@ -159,7 +152,7 @@ class LoginScreen extends React.Component {
                 autoCorrect={false}
                 autoCapitalize="none"
                 onChangeText={(signUpEmail) => {
-                  this.setState({ signUpEmail });
+                  this.setState({signUpEmail});
                 }}
               />
             </Item>
@@ -170,14 +163,14 @@ class LoginScreen extends React.Component {
                 autoCorrect={false}
                 autoCapitalize="none"
                 onChangeText={(signUpPassword) => {
-                  this.setState({ signUpPassword });
+                  this.setState({signUpPassword});
                 }}
               />
             </Item>
             <Button style={{ marginTop: 10 }}
               full
               rounded
-              success
+              color='#581915'
               onPress={() => this.signUpUser(this.state.signUpEmail, this.state.signUpPassword)}
             >
               <Text>Sign Up</Text>
@@ -188,18 +181,6 @@ class LoginScreen extends React.Component {
     } else {
       return (
         <Container style={styles.container}>
-          <LinearGradient
-            // Background Linear Gradient
-            colors={['white', 'transparent']}
-            // rgba(0,0,0,0.8)
-            style={{
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              top: 0,
-              height: 500,
-            }}
-          />
           <Form>
             <Item floatingLabel>
               <Label>Email</Label>
@@ -207,7 +188,7 @@ class LoginScreen extends React.Component {
                 autoCorrect={false}
                 autoCapitalize="none"
                 onChangeText={(loginEmail) => {
-                  this.setState({ loginEmail });
+                  this.setState({loginEmail});
                 }}
               />
             </Item>
@@ -218,7 +199,7 @@ class LoginScreen extends React.Component {
                 autoCorrect={false}
                 autoCapitalize="none"
                 onChangeText={(loginPassword) => {
-                  this.setState({ loginPassword });
+                  this.setState({loginPassword});
                 }}
               />
             </Item>
@@ -226,7 +207,7 @@ class LoginScreen extends React.Component {
               full
               bordered
               success
-              onPress={() => this.loginUser(this.state.loginEmail, this.state.loginPassword)}
+              onPress = { () => this.loginUser(this.state.loginEmail, this.state.loginPassword)}
             >
               <Text>Login</Text>
             </Button>
@@ -237,7 +218,7 @@ class LoginScreen extends React.Component {
             bordered
             success
           >
-            <Text style={{ padding: 10, alignSelf: 'center' }}>Login with Google</Text>
+            <Text style={{padding: 10, alignSelf: 'center'}}>Login with Google</Text>
           </Button>
           {/* <StyleProvider style={customTheme}>
             <Button customStyleProp onPress={() => { this.signInWithGoogleAsync() }} >

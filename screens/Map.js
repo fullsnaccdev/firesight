@@ -349,7 +349,9 @@ export default class Map extends React.Component {
                           ? " you"
                           : " " + this.state.currentCity}
                       </Text>
-
+                      <Text style={styles.calloutDescription}>
+                        Updated: {moment(fire.update_time).calendar()}
+                      </Text>
                       {/* </View> */}
                     </Callout>
                   </Marker>

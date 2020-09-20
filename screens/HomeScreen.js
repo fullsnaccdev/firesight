@@ -65,8 +65,9 @@ class HomeScreen extends React.Component {
         <Image source={require("../assets/customLogo.png")} style={styles.logoStyle} />
         <View>
         <Button
-        title="Log In/Sign Up"
-        onPress={() => this.props.navigation.navigate("LoginScreen")}
+        color='#581915'
+        title="Log In"
+        onPress={() => this.props.navigation.navigate("Log In")}
         />
       </View>
         <Button
@@ -75,7 +76,11 @@ class HomeScreen extends React.Component {
           fontFamily='Montserrat'
           onPress={() => this.props.navigation.navigate("Map")}
         />
-
+        <Button
+        color='#581915'
+        title="Sign Up"
+        onPress={() => this.props.navigation.navigate("Sign Up")}
+        />
       </View>
     );
   }

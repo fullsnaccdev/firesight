@@ -12,6 +12,7 @@ import breezy_key from "../breezy_key.js";
 import Map from "./Map.js";
 import HomeScreen from "./HomeScreen.js";
 import LoginScreen from './LoginScreen.js';
+import SignUpScreen from './SignUpScreen.js';
 
 const Stack = createStackNavigator();
 
@@ -21,7 +22,8 @@ function App() {
         <Stack.Navigator initialRouteName="Home">
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="Map" component={Map} />
-          <Stack.Screen name="LoginScreen" component={LoginScreen} />
+          <Stack.Screen name="Log In" component={LoginScreen} />
+          <Stack.Screen name="Sign Up" component={SignUpScreen} />
         </Stack.Navigator>
     </NavigationContainer>
   );
