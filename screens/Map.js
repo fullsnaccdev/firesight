@@ -22,7 +22,7 @@ import { Constants } from "expo";
 import * as Location from "expo-location";
 import * as Permissions from "expo-permissions";
 import * as firebase from "firebase";
-import "firebase/firestore";
+// import "firebase/firestore";
 import firekey from "../firekey2.js";
 import axios from "axios";
 import breezy_key from "../breezy_key.js";
@@ -34,9 +34,9 @@ if (firebase.apps.length === 0) {
   firebase.initializeApp(firekey);
 }
 
-const db = firebase.firestore();
+// const db = firebase.firestore();
 // const firesRef = db.collection("fires");
-const testRef = db.collection("test").doc("1");
+// const testRef = db.collection("test").doc("1");
 
 export default class Map extends React.Component {
   _isMounted = false;
