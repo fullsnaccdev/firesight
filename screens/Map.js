@@ -70,7 +70,7 @@ export default class Map extends React.Component {
   componentDidMount() {
     this._isMounted = true;
     this.findCurrentLocation();
-    if (this.props.route.params.uid) {
+    if (this.props.route && this.props.route.params && this.props.route.params.uid) {
       this.setState({
         currentUser: this.props.route.params.uid
       })
