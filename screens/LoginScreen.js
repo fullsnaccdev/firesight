@@ -29,6 +29,12 @@ class LoginScreen extends React.Component {
           })
           return result.user.uid
         })
+        .then(() => {
+          this.setState({
+            loginPassword: '',
+            loginEmail: ''
+          })
+        })
         .then((uid) => {
           alert('Welcome back!')
           this.props.navigation.navigate('Map', {uid: uid})
@@ -53,7 +59,6 @@ class LoginScreen extends React.Component {
         if (providerData[i].providerId === firebase.auth.GoogleAuthProvider.PROVIDER_ID &&
           providerData[i].uid === googleUser.getBasicProfile().getId()) {
           // We don't need to reauth the Firebase connection.
-          console.log('is josh a genius??', providerData[i].uid)
           return true;
         }
       }
@@ -63,9 +68,6 @@ class LoginScreen extends React.Component {
 
   onSignIn = (googleUser) => {
     console.log('Google Auth Response', googleUser);
-    // this.seState({
-    //   currentUser: googleUser.
-    // })
     // We need to register an Observer on Firebase Auth to make sure auth is initialized.
     var unsubscribe = firebase.auth().onAuthStateChanged(function (firebaseUser) {
       unsubscribe();
@@ -78,10 +80,6 @@ class LoginScreen extends React.Component {
         // Sign in with credential from the Google user.
         firebase.auth().signInWithCredential(credential).then((result) => {
           console.log("User already signed-in");
-          // console.log("result from google: ", result)
-          // this.setState({
-          //   currentUser: result.user.uid
-          // });
           if (result.additionalUserInfo.isNewUser) {
 
             firebase.database().ref('/users/' + result.user.uid)
@@ -92,15 +90,10 @@ class LoginScreen extends React.Component {
                 last_name: result.additionalUserInfo.profile.family_name,
                 created_at: Date.now()
               })
-              // .then(() => {
-              //   this.setState({
-              //     currentUser: result.user.uid
-              //   })
-              // })
           } else {
             firebase.database().ref('/users/' + result.user.uid).update({
               last_logged_in: Date.now()
-            }).then(() => {this.setState({currentUser:result.user.uid})})
+            })
           }
         }).catch(function (error) {
           // Handle Errors here.
@@ -129,9 +122,7 @@ class LoginScreen extends React.Component {
 
       if (result.type === 'success') {
         this.onSignIn(result)
-        console.log('y u do this', result)
-        this.props.navigation.navigate('Map', {uid: this.state.currentUser})
-
+        this.props.navigation.navigate('Map')
         return result.accessToken;
 
       } else {
@@ -145,19 +136,6 @@ class LoginScreen extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        {/* <LinearGradient
-          // Background Linear Gradient
-          colors={['white', 'transparent']}
-          // rgba(0,0,0,0.8)
-          style={{
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            top: 0,
-            bottom: 10,
-            height: 200,
-          }}
-        /> */}
         <Form>
           <Item floatingLabel>
             <Label
@@ -165,6 +143,7 @@ class LoginScreen extends React.Component {
             >Email</Label>
             <Input
               style={styles.inputBox}
+              value={this.state.loginEmail}
               autoCorrect={false}
               autoCapitalize="none"
               onChangeText={(loginEmail) => {
@@ -178,6 +157,7 @@ class LoginScreen extends React.Component {
             >Password</Label>
             <Input
               style={styles.inputBox}
+              value={this.state.loginPassword}
               secureTextEntry={true}
               autoCorrect={false}
               autoCapitalize="none"
@@ -191,7 +171,7 @@ class LoginScreen extends React.Component {
             full
             bordered
             success
-            onPress={() => this.loginUser(this.state.loginEmail, this.state.loginPassword)}
+            onPress={() => {this.loginUser(this.state.loginEmail, this.state.loginPassword)}}
           >
             <Text style={styles.buttonText}>
               Login

@@ -100,8 +100,8 @@ const styles = StyleSheet.create({
     borderRadius: 15
   },
   logoStyle: {
-    height: 450,
-    width: 450,
+    height: '100%',
+    width: '100%',
     flex: 1,
     marginTop: 180,
   }

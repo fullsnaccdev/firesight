@@ -31,13 +31,16 @@ class SignUpScreen extends React.Component {
                   email: email,
                   created_at: Date.now()
                 })
-
+              })
+              .then(() => {
+                this.setState({
+                  signUpPassword: '',
+                  signUpEmail: ''
+                })
+              })
         alert('Welcome to Firesight!')
         this.props.navigation.navigate('Map')
-      })
-
     }
-
     catch(error) {
       console.log(error.toString());
     }
@@ -142,6 +145,8 @@ class SignUpScreen extends React.Component {
               >Email</Label>
               <Input
               style={styles.inputBox}
+              value={this.state.signUpEmail}
+
                 autoCorrect={false}
                 autoCapitalize="none"
                 onChangeText={(signUpEmail) => {
@@ -156,6 +161,7 @@ class SignUpScreen extends React.Component {
               >Password</Label>
               <Input
               style={styles.inputBox}
+              value={this.state.signUpPassword}
                 secureTextEntry={true}
                 autoCorrect={false}
                 autoCapitalize="none"

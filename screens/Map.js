@@ -60,7 +60,7 @@ export default class Map extends React.Component {
       currentRegion: "",
       currentCity: "",
       currentUser: "",
-      isSearching: false,
+      isSearching: true,
     };
     // this.getData = this.getData.bind(this);
     this.queryBreezy = this.queryBreezy.bind(this);
@@ -82,9 +82,12 @@ export default class Map extends React.Component {
   //   setInterval(this.queryBreezy, 10000)
   // }
 
-  // addCityToFavorites() {
+  addCityToFavorites() {
 
-  // }
+    firebase.database().ref(`/users/${this.state.currentUser}/Favorites`).push({
+      city: this.state.region
+    })
+  }
 
   findCurrentLocation() {
     navigator.geolocation.getCurrentPosition(
@@ -247,63 +250,68 @@ export default class Map extends React.Component {
     if (this.state.airQuality.indexes && this.state.airQuality.indexes.usa_epa) {
       return (
         this.state.airQuality.indexes.usa_epa.aqi <= 50
-        ? styles.good
-        : this.state.airQuality.indexes.usa_epa.aqi <= 100
-        ? styles.moderate
-        : this.state.airQuality.indexes.usa_epa.aqi <= 150
-        ? styles.unhealthy1
-        : this.state.airQuality.indexes.usa_epa.aqi <= 200
-        ? styles.unhealthy2
-        : this.state.airQuality.indexes.usa_epa.aqi <= 300
-        ? styles.unhealthy3
-        : styles.hazardous
+          ? styles.good
+          : this.state.airQuality.indexes.usa_epa.aqi <= 100
+            ? styles.moderate
+            : this.state.airQuality.indexes.usa_epa.aqi <= 150
+              ? styles.unhealthy1
+              : this.state.airQuality.indexes.usa_epa.aqi <= 200
+                ? styles.unhealthy2
+                : this.state.airQuality.indexes.usa_epa.aqi <= 300
+                  ? styles.unhealthy3
+                  : styles.hazardous
       )
     }
   }
 
   render() {
-    console.log('current user: ', this.state.currentUser)
     if (!this.state.permissionGranted && !this.state.locationEntered) {
       return (
         <Container searchBar rounded style={styles.headerStyle}>
-            {this.state.isSearching ?
-            (<Item>
-              <Icon name="search" />
+
+          {this.state.isSearching ?
+            (<Item
+              style={{borderWidth: 1, borderRadius: 25, backgroundColor: '#E0E0E0'}}
+            >
+              <Icon name="search"
+                style={{ paddingLeft: 10 }}
+              />
               <Input
+                style={{ paddingLeft: 5 }}
                 placeholder="Enter Location"
                 onChangeText={(text) => {
                   this.changeHandler(text);
                 }}
-                onSubmitEditing={() => {this.getCityCoords(); this.searchToggle(false)}}
+                onSubmitEditing={() => { this.getCityCoords() }} // ; this.searchToggle(false)
                 clearButtonMode="always"
                 value={this.state.location}
               />
             </Item>)
             :
             (<Item
-                style={{flexDirection: 'row', justifyContent: 'space-around'}}
+              style={{ flexDirection: 'row', justifyContent: 'space-around' }}
             >
               <Button
                 title='Search'
                 onPress={() => this.searchToggle(true)}
-                style={{padding: 5}}
+                style={{ padding: 5 }}
               />
               <Button
                 title='Favorites'
-                style={{padding: 5}}
+                style={{ padding: 5 }}
                 onPress={() => this.props.navigation.navigate('Favorites')}
               />
               <Button
                 title='Profile'
-                style={{padding: 5}}
+                style={{ padding: 5 }}
 
               />
             </Item>)
-            }
+          }
           <MapView
             onPress={() => {
               Keyboard.dismiss();
-              this.searchToggle(false);
+              // this.searchToggle(false);
             }}
             style={styles.container}
             initialRegion={this.state.region}
@@ -317,11 +325,20 @@ export default class Map extends React.Component {
       );
     } else {
       return (
-        <Container searchBar rounded style={styles.headerStyle}>
+        <Container
+
+        searchBar rounded style={styles.headerStyle}
+        >
+
           {this.state.isSearching ?
-            (<Item>
-              <Icon name="search" />
+            (<Item
+              style={{borderWidth: 1, borderRadius: 25, backgroundColor: '#E0E0E0'}}
+            >
+              <Icon name="search"
+                style={{ paddingLeft: 10 }}
+              />
               <Input
+                style={{ paddingLeft: 5 }}
                 placeholder="Enter Location"
                 onChangeText={(text) => {
                   this.changeHandler(text);
@@ -331,26 +348,26 @@ export default class Map extends React.Component {
                 clearButtonMode="always"
               />
             </Item>)
-          :
-          (<Item
-            style={{flexDirection: 'row', justifyContent: 'space-around'}}
-          >
-            <Button
-              title='Search'
-              onPress={() => this.searchToggle(true)}
-              style={{padding: 5}}
-            />
-            <Button
-              title='Favorites'
-              style={{padding: 5}}
-              onPress={() => this.props.navigation.navigate('Favorites')}
-            />
-            <Button
-              title='Profile'
-              style={{padding: 5}}
+            :
+            (<Item
+              style={{ flexDirection: 'row', justifyContent: 'space-around' }}
+            >
+              <Button
+                title='Search'
+                onPress={() => this.searchToggle(true)}
+                style={{ padding: 5 }}
+              />
+              <Button
+                title='Favorites'
+                style={{ padding: 5 }}
+                onPress={() => this.props.navigation.navigate('Favorites')}
+              />
+              <Button
+                title='Profile'
+                style={{ padding: 5 }}
 
-            />
-          </Item>)}
+              />
+            </Item>)}
 
           <MapView
             style={styles.container}
@@ -362,7 +379,7 @@ export default class Map extends React.Component {
             }
             onPress={() => {
               Keyboard.dismiss();
-              this.searchToggle(false)
+              // this.searchToggle(false)
               // this.closeExpansion(); //turn this back on if you want the callout to be collapsed upon leaving
             }}
           >
@@ -390,13 +407,15 @@ export default class Map extends React.Component {
                       {/* <View */}
                       {/* style={this.state.isExpanded ? styles.viewStyle : null} */}
                       {/* > */}
-                      <Text style={styles.calloutTitle}>
-                        {fire.details !== null &&
-                          fire.details.fire_name !== null
-                          ? fire.details.fire_name
-                          : null}
-                      </Text>
-                      <Text >
+                        <Text style={styles.calloutTitle}>
+                          {fire.details !== null &&
+                            fire.details.fire_name !== null
+                            ? fire.details.fire_name
+                            : null}
+                        </Text>
+                      <Text
+                        style={styles.calloutDescription}
+                      >
                         {fire.details !== null &&
                           fire.details.percent_contained !== null
                           ? `${fire.details.percent_contained}% Contained`
@@ -427,7 +446,7 @@ export default class Map extends React.Component {
                           ? " you"
                           : " " + this.state.currentCity}
                       </Text>
-                      <Text style={{fontSize: 14, paddingBottom: 2.46, marginTop: 6, textAlign: 'center', fontStyle: 'italic'}}>
+                      <Text style={{ fontSize: 14, paddingBottom: 2.46, marginTop: 6, textAlign: 'center', fontStyle: 'italic' }}>
                         Updated: {moment(fire.update_time).calendar()}
                       </Text>
                       {/* </View> */}
@@ -445,28 +464,39 @@ export default class Map extends React.Component {
             // onCalloutPress={(e) => this.calloutPress()}
             // description={`${this.state.airQuality.category} : ${this.state.airQuality.aqi}`}
             >
-              <Callout>
+              <Callout
+                onPress={() => { this.addCityToFavorites(); console.log('this was clicked!') }}
+              >
                 <View>
                   <Text style={
-                      this.styleRenderer()
-                    }>
+                    this.styleRenderer()
+                  }>
 
-                      { this.state.airQuality.indexes && this.state.airQuality.indexes.usa_epa && (
+                    {this.state.airQuality.indexes && this.state.airQuality.indexes.usa_epa && (
                       `${this.state.airQuality.indexes.usa_epa.category}`)}
-                    </Text>
-                  <Text style={{fontSize: 19, textAlign: "center", marginTop: 3, marginBottom: 3}}>
-                    { this.state.airQuality.indexes && this.state.airQuality.indexes.usa_epa && (
+                  </Text>
+                  <Text style={{ fontSize: 19, textAlign: "center", marginTop: 3, marginBottom: 3 }}>
+                    {this.state.airQuality.indexes && this.state.airQuality.indexes.usa_epa && (
                       `AQI: ${this.state.airQuality.indexes.usa_epa.aqi}`
                     )}
                   </Text>
                   <Text
-                    style={{fontSize: 14, paddingBottom: 2.46, marginTop: 6, textAlign: 'center', fontStyle: 'italic'}}
+                    style={{ fontSize: 14, paddingBottom: 2.46, marginTop: 6, textAlign: 'center', fontStyle: 'italic' }}
                   >{`Updated: ${moment(this.state.airQuality.datetime).calendar()}`}
                   </Text>
-                  <Button
-                    style={styles.button}
+                  <View
+                    onPress={() => { this.addCityToFavorites(); console.log('this was clicked!') }}
+                  >
+                    {/* <Button
+                    //style={styles.button}
+                    large
+                    warning
                     title='Add to Favorites'
-                  />
+                    // onCalloutPress={() => {this.addCityToFavorites();  console.log('this was clicked!')}}
+                    onPress={() => {this.addCityToFavorites();  console.log('this was clicked!')}}
+                    /> */}
+
+                  </View>
                 </View>
               </Callout>
             </Marker>
@@ -476,6 +506,7 @@ export default class Map extends React.Component {
               Updated {this.state.timeStamp}
             </Text>
           </Footer> */}
+
         </Container>
       );
     }
@@ -502,10 +533,10 @@ const styles = StyleSheet.create({
   },
 
   headerStyle: {
-    backgroundColor: '#FAFCFF',
+    backgroundColor: 'white',
     borderRadius: 15,
+    margin: 2
     // padding: 5,
-    // height: 40,
   },
 
   mapView: {
@@ -533,6 +564,7 @@ const styles = StyleSheet.create({
   searchBarStyle: {
     display: "flex",
     flex: 1,
+    borderRadius: 30
   },
   button: {
     marginTop: 50,
@@ -546,7 +578,7 @@ const styles = StyleSheet.create({
     // borderWidth: 1,
     borderRadius: 5,
     width: '70%',
-    padding:30
+    padding: 30
   },
   buttonText: {
     fontSize: 20,
